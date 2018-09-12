@@ -112,12 +112,12 @@ Watertower::WatertowerState Watertower::state() const
 
 double Watertower::tunnage() const
 {
-    return 0.1;
+    return 22 * index / 5.0;
 }
 
 int Watertower::percent() const
 {
-    return 40;
+    return 100 * index / 5;
 }
 
 void Watertower::setIdentity(int id)

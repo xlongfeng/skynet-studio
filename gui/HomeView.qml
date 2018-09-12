@@ -37,16 +37,18 @@ Page {
 
         model: WatertowerModel { }
 
-        delegate: Frame {
+        delegate: Item {
             width: gridView.cellWidth
             height: gridView.cellHeight
 
             Image {
                 id: image
 
+                anchors.centerIn: parent
+
                 source: icon
-                sourceSize.width: parent.width
-                sourceSize.height: parent.height
+                sourceSize.width: parent.width - 8
+                sourceSize.height: parent.height - 8
 
                 Rectangle {
                     anchors.top: parent.top
@@ -55,6 +57,7 @@ Page {
                     width: 120
                     height: 48
                     color: Qt.rgba(0.0, 0.0, 0.0, 0.5)
+                    radius: 5
 
                     Text {
                         anchors.centerIn: parent
@@ -80,7 +83,7 @@ Page {
                         id: background
                         implicitWidth: 24
                         implicitHeight: image.height * 0.9
-                        color: "#e6e6e6"
+                        color: "white"
                         radius: 3
                     }
 
@@ -88,16 +91,19 @@ Page {
                         rotation: 180
 
                         Rectangle {
-                            width: parent.width
-                            height: control.visualPosition * parent.height
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.margins: 2
+                            width: parent.width - 4
+                            height: control.visualPosition * (parent.height - 4)
                             radius: 2
 
                             gradient: Gradient {
-                                GradientStop { position: 0.0; color: Qt.rgba(1.0, 0.0, 0.0, 1.0) }
+                                GradientStop { position: 0.0; color: Qt.rgba(1.0, 0.0, 1.0, 1.0) }
                                 GradientStop { position: 1.0; color:
                                         Qt.rgba((control.to - control.value) / control.to,
                                                 control.value / control.to,
-                                                0.0, 1.0) }
+                                                1.0, 1.0) }
                             }
                         }
                     }
