@@ -15,7 +15,6 @@ Row {
         width: 120
         height: control.implicitHeight
         verticalAlignment: Text.AlignVCenter
-        font.bold: true
     }
 
     SpinBox {

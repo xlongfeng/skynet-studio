@@ -46,6 +46,9 @@ Page {
 
                 anchors.centerIn: parent
 
+                width: parent.width - 8
+                height: parent.height - 8
+
                 source: icon
                 sourceSize.width: parent.width - 8
                 sourceSize.height: parent.height - 8
