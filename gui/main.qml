@@ -45,7 +45,23 @@ ApplicationWindow {
 
         Label {
             text: stackView.currentItem.title
+            font.pixelSize: Qt.application.font.pixelSize * 1.6
             anchors.centerIn: parent
+        }
+
+        Text {
+            id: date
+            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+
+            Timer {
+                interval: 500
+                running: true
+                repeat: true
+                onTriggered: date.text = new Date().toLocaleString(Qt.locale("zh_CN"), "yyyy-MM-dd HH:mm:ss")
+            }
         }
     }
 
