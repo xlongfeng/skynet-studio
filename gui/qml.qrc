@@ -3,7 +3,7 @@
         <file>main.qml</file>
         <file>HomeView.qml</file>
         <file>WatertowerOptionView.qml</file>
-        <file>Page2Form.ui.qml</file>
+        <file>SystemOptionView.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>LabelSpinBox.qml</file>
         <file>LabelSwitch.qml</file>

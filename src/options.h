@@ -30,14 +30,17 @@ class Options : public QObject
 
     Q_PROPERTY(QString portName MEMBER m_portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(qint32 baudRate MEMBER m_baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
+    Q_PROPERTY(bool autoShutdown MEMBER m_autoShutdown READ autoShutdown WRITE setAutoShutdown NOTIFY autoShutdownChanged)
+    Q_PROPERTY(qint32 shutdownHour MEMBER m_shutdownHour READ shutdownHour WRITE setShutdownHour NOTIFY shutdownHourChanged)
+    Q_PROPERTY(qint32 shutdownMinute MEMBER m_shutdownMinute READ shutdownMinute WRITE setShutdownMinute NOTIFY shutdownMinuteChanged)
 
 public:
     static Options *instance();
 
     Q_INVOKABLE void setHardwareClock(int year, int month, int day, int hour, int minute, int second);
 
-    Q_INVOKABLE QList<QString> availablePorts() const;
-    Q_INVOKABLE QList<qint32> standardBaudRates() const;
+    Q_INVOKABLE QStringList availablePorts() const;
+    Q_INVOKABLE QList<QVariant> standardBaudRates() const;
 
     QString portName() const
     {
@@ -51,9 +54,30 @@ public:
     }
     void setBaudRate(qint32 rate);
 
+    bool autoShutdown() const
+    {
+        return m_autoShutdown;
+    }
+    void setAutoShutdown(bool enabled);
+
+    qint32 shutdownHour() const
+    {
+        return m_shutdownHour;
+    }
+    void setShutdownHour(qint32 value);
+
+    qint32 shutdownMinute() const
+    {
+        return m_shutdownMinute;
+    }
+    void setShutdownMinute(qint32 value);
+
 signals:
     void portNameChanged();
     void baudRateChanged();
+    void autoShutdownChanged();
+    void shutdownHourChanged();
+    void shutdownMinuteChanged();
 
 public slots:
 
@@ -67,6 +91,10 @@ private:
 
     QString m_portName;
     qint32 m_baudRate;
+
+    bool m_autoShutdown;
+    qint32 m_shutdownHour;
+    qint32 m_shutdownMinute;
 };
 
 #endif // OPTIONS_H

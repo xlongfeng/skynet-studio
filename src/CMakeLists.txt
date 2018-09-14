@@ -37,7 +37,7 @@ endif ()
 add_definitions(-DIMAGES_PATH="${IMAGES_PATH}")
 
 add_library(studio STATIC ${STUDIO_SRC})
-target_link_libraries(studio studio Qt5::Core Qt5::Quick Qt5::SerialPort)
+target_link_libraries(studio Qt5::Core Qt5::Quick Qt5::SerialPort)
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} studio gui)

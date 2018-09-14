@@ -29,8 +29,11 @@ Options *Options::self = nullptr;
 Options::Options(QObject *parent) : QObject(parent),
     settings(new Settings(this))
 {
-    settings->value("port-name", "COM1").toString();
-    settings->value("baud-rate", 38400).toInt();
+    m_portName = settings->value("port-name", "COM1").toString();
+    m_baudRate = settings->value("baud-rate", 38400).toInt();
+    m_autoShutdown = settings->value("auto-shutdown", false).toBool();
+    m_shutdownHour = settings->value("shutdown-hour", 23).toInt();
+    m_shutdownMinute = settings->value("shutdown-minute", 0).toInt();
 }
 
 Options *Options::instance()
@@ -54,10 +57,10 @@ void Options::setHardwareClock(int year, int month, int day, int hour, int minut
 #endif
 }
 
-QList<QString> Options::availablePorts() const
+QStringList Options::availablePorts() const
 {
     auto ports = QSerialPortInfo::availablePorts();
-    QList<QString> portNames;
+    QStringList portNames;
     auto cbegin = ports.cbegin();
     auto cend = ports.cend();
     for (auto i = cbegin; i < cend; i++) {
@@ -66,9 +69,15 @@ QList<QString> Options::availablePorts() const
     return portNames;
 }
 
-QList<qint32> Options::standardBaudRates() const
+QList<QVariant> Options::standardBaudRates() const
 {
-    return QSerialPortInfo::standardBaudRates();
+    QList<QVariant> baudRates;
+    for (qint32 rate: QSerialPortInfo::standardBaudRates()) {
+        if (rate < 2400 || rate > 115200)
+            continue;
+        baudRates.append(rate);
+    }
+    return baudRates;
 }
 
 void Options::setPortName(const QString &name)
@@ -86,5 +95,32 @@ void Options::setBaudRate(qint32 rate)
         m_baudRate = rate;
         settings->setValue("baud-rate", m_baudRate);
         emit baudRateChanged();
+    }
+}
+
+void Options::setAutoShutdown(bool enabled)
+{
+    if (m_autoShutdown != enabled) {
+        m_autoShutdown = enabled;
+        settings->setValue("auto-shutdown", m_autoShutdown);
+        emit autoShutdownChanged();
+    }
+}
+
+void Options::setShutdownHour(qint32 value)
+{
+    if (m_shutdownHour != value) {
+        m_shutdownHour = value;
+        settings->setValue("shutdown-hour", m_shutdownHour);
+        emit shutdownHourChanged();
+    }
+}
+
+void Options::setShutdownMinute(qint32 value)
+{
+    if (m_shutdownMinute != value) {
+        m_shutdownMinute = value;
+        settings->setValue("shutdown-minute", m_shutdownMinute);
+        emit shutdownMinuteChanged();
     }
 }

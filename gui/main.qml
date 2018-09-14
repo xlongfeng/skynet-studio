@@ -51,7 +51,7 @@ ApplicationWindow {
 
         Text {
             id: date
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            font.pixelSize: Qt.application.font.pixelSize * 1.2
             anchors.right: parent.right
             anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
@@ -60,7 +60,7 @@ ApplicationWindow {
                 interval: 500
                 running: true
                 repeat: true
-                onTriggered: date.text = new Date().toLocaleString(Qt.locale("zh_CN"), "yyyy-MM-dd HH:mm:ss")
+                onTriggered: date.text = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd HH:mm:ss")
             }
         }
     }
@@ -82,10 +82,10 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: qsTr("Page 2")
+                text: qsTr("System Options")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Page2Form.ui.qml")
+                    stackView.push("SystemOptionView.qml")
                     drawer.close()
                 }
             }

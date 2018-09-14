@@ -59,7 +59,6 @@ private slots:
         }
     }
 
-    /*
     void standardBaudRatesTest()
     {
         Options *opt = Options::instance();
@@ -68,7 +67,6 @@ private slots:
             qDebug() << rate;
         }
     }
-    */
 
     void portSettingsTest()
     {
