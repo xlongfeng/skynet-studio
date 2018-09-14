@@ -21,8 +21,6 @@ Page {
                     width: container.width
                     height: container.height
                     Row {
-                        property int row: index
-
                         anchors.centerIn: parent
 
                         spacing: 16
@@ -47,13 +45,13 @@ Page {
                                 from: -1
                                 to: 127
                                 value: identity
-                                onValueUpdated: option.setData(option.index(row, 0), value, WatertowerModel.IdentityRole)
+                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.IdentityRole)
                             }
 
                             LabelSwitch {
                                 text: qsTr("On-Off")
                                 checked: onOff
-                                onValueUpdated: option.setData(option.index(row, 0), checked, WatertowerModel.OnOffRole)
+                                onValueUpdated: option.setData(option.index(index, 0), checked, WatertowerModel.OnOffRole)
                             }
 
                             LabelSpinBox {
@@ -61,7 +59,7 @@ Page {
                                 from: 100
                                 to: 400
                                 value: radius
-                                onValueUpdated: option.setData(option.index(row, 0), value, WatertowerModel.RadiusRole)
+                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.RadiusRole)
                             }
 
                             LabelSpinBox {
@@ -69,7 +67,7 @@ Page {
                                 from: 1
                                 to: 5
                                 value: bucketQuantity
-                                onValueUpdated: option.setData(option.index(row, 0), value, WatertowerModel.BucketQuantityRole)
+                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.BucketQuantityRole)
                             }
 
                             LabelComboBox {

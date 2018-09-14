@@ -18,8 +18,11 @@
 #
 #############################################################################
 
-set(STUDIO_SRC main.cpp
+enable_testing()
+
+set(STUDIO_SRC
     settings.cpp
+    options.cpp
     watertower.cpp
     watertowermodel.cpp
     halfduplexlinker.cpp
@@ -33,5 +36,12 @@ endif ()
 
 add_definitions(-DIMAGES_PATH="${IMAGES_PATH}")
 
-add_executable(${PROJECT_NAME} ${STUDIO_SRC})
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Quick Qt5::SerialPort gui)
+add_library(studio STATIC ${STUDIO_SRC})
+target_link_libraries(studio studio Qt5::Core Qt5::Quick Qt5::SerialPort)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} studio gui)
+
+add_executable(unittest unittest.cpp)
+add_test(unittest unittest)
+target_link_libraries(unittest studio Qt5::Test)
