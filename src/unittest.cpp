@@ -18,6 +18,7 @@
  */
 
 #include <QTest>
+#include <QSignalSpy>
 #include <QDebug>
 
 #include "settings.h"
@@ -58,6 +59,7 @@ private slots:
         }
     }
 
+    /*
     void standardBaudRatesTest()
     {
         Options *opt = Options::instance();
@@ -66,14 +68,25 @@ private slots:
             qDebug() << rate;
         }
     }
+    */
 
     void portSettingsTest()
     {
         Options *opt = Options::instance();
+        opt->setPortName("COMX");
+        opt->setBaudRate(1200);
+        QSignalSpy portNameChangedSpy(opt, SIGNAL(portNameChanged()));
+        QSignalSpy baudRateChangedSpy(opt, SIGNAL(baudRateChanged()));
         opt->setPortName("COM1");
         opt->setBaudRate(38400);
-        QVERIFY(opt->portName() == "COM1");
-        QVERIFY(opt->baudRate() == 38400);
+        QCOMPARE(opt->portName(), "COM1");
+        QCOMPARE(opt->baudRate(), 38400);
+        QCOMPARE(portNameChangedSpy.count(), 1);
+        QCOMPARE(baudRateChangedSpy.count(), 1);
+        opt->setPortName("COM2");
+        opt->setBaudRate(38400);
+        QCOMPARE(portNameChangedSpy.count(), 2);
+        QCOMPARE(baudRateChangedSpy.count(), 1);
     }
 };
 

@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QQueue>
 
+class Options;
 class QTimer;
 class QSerialPort;
 
@@ -38,6 +39,7 @@ signals:
     void response(int id, const QString &cmd , const QString &arg);
 
 private slots:
+    void onPortSettingsChanged();
     void onResponseTimeout();
     void onReadyRead();
 
@@ -47,10 +49,11 @@ private:
 
 private:
     static HalfDuplexLinker *self;
+    Options *options;
     QQueue<QString> packageQueue;
-
     QTimer *responseTimer;
     QSerialPort *port;
+
 };
 
 #endif // HALFDUPLEXLINKER_H

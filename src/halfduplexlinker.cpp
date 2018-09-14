@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <QSerialPort>
 
+#include "options.h"
 #include "halfduplexlinker.h"
 
 namespace {
@@ -31,17 +32,22 @@ HalfDuplexLinker *HalfDuplexLinker::self = nullptr;
 HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     QObject(parent)
 {
+    options = Options::instance();
+
     responseTimer = new QTimer(this);
     responseTimer->setSingleShot(true);
     connect(responseTimer, SIGNAL(timeout()), this, SLOT(onResponseTimeout()));
 
-    port = new QSerialPort("ttyUSB1", this);
-    port->setBaudRate(QSerialPort::Baud38400);
+    port = new QSerialPort(options->portName(), this);
+    port->setBaudRate(options->baudRate());
     port->setDataBits(QSerialPort::Data8);
     port->setFlowControl(QSerialPort::NoFlowControl);
     port->setParity(QSerialPort::NoParity);
     port->setStopBits(QSerialPort::OneStop);
+    port->open(QIODevice::ReadWrite);
     connect(port, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    connect(options, SIGNAL(portNameChanged()), this, SLOT(onPortSettingsChanged()));
+    connect(options, SIGNAL(baudRateChanged()), this, SLOT(onPortSettingsChanged()));
 }
 
 HalfDuplexLinker *HalfDuplexLinker::instance()
@@ -59,6 +65,14 @@ void HalfDuplexLinker::request(int id, const QString &cmd, const QString &arg)
     packageQueue.enqueue(package);
     if (!responseTimer->isActive())
         responseTimer->start(5);
+}
+
+void HalfDuplexLinker::onPortSettingsChanged()
+{
+    port->close();
+    port->setPortName(options->portName());
+    port->setBaudRate(options->baudRate());
+    port->open(QIODevice::ReadWrite);
 }
 
 void HalfDuplexLinker::onResponseTimeout()

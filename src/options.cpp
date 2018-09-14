@@ -73,14 +73,18 @@ QList<qint32> Options::standardBaudRates() const
 
 void Options::setPortName(const QString &name)
 {
-    m_portName = name;
-    settings->setValue("port-name", m_portName);
-    emit portNameChanged();
+    if (m_portName != name) {
+        m_portName = name;
+        settings->setValue("port-name", m_portName);
+        emit portNameChanged();
+    }
 }
 
 void Options::setBaudRate(qint32 rate)
 {
-    m_baudRate = rate;
-    settings->setValue("baud-rate", m_baudRate);
-    emit baudRateChanged();
+    if (m_baudRate != rate) {
+        m_baudRate = rate;
+        settings->setValue("baud-rate", m_baudRate);
+        emit baudRateChanged();
+    }
 }
