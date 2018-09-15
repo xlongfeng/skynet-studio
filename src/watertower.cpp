@@ -110,25 +110,6 @@ const QString Watertower::icon() const
     return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index);
 }
 
-Options::LinkStatus Watertower::linkStatus() const
-{
-    if (m_onOff) {
-        return m_linkStatus;
-    } else {
-        return Options::Disabled;
-    }
-}
-
-double Watertower::tunnage() const
-{
-    return m_tunnage;
-}
-
-int Watertower::percent() const
-{
-    return m_percent;
-}
-
 void Watertower::setIdentity(int id)
 {
     m_identity = id;
@@ -139,7 +120,7 @@ void Watertower::setOnOff(bool on)
 {
     m_onOff = on;
     settings->setValue("on-off", on);
-    emit linkChanged();
+    emit linkStatusChanged();
     if (m_onOff) {
         queryTimer->start(QueryInterval);
         queryTimeoutTimer->start(QeuryTimeout);
@@ -191,7 +172,7 @@ void Watertower::query()
 void Watertower::queryTimeout()
 {
     m_linkStatus = Options::Detached;
-    emit linkChanged();
+    emit linkStatusChanged();
 }
 
 void Watertower::response(int id, const QString &cmd , quint16 arg)
@@ -201,9 +182,9 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
 
     queryTimeoutTimer->start(QeuryTimeout);
 
-    if (m_linkStatus == Options::Detached) {
+    if (m_linkStatus != Options::Attached) {
         m_linkStatus = Options::Attached;
-        emit linkChanged();
+        emit linkStatusChanged();
     }
 
     if (cmd == "Query") {

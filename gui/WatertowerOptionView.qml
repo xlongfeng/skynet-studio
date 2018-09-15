@@ -82,6 +82,14 @@ Page {
                             }
 
                             LabelSpinBox {
+                                text: qsTr("Bucket Height (cm)")
+                                from: 100
+                                to: 500
+                                value: bucketHeight
+                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.BucketHeightRole)
+                            }
+
+                            LabelSpinBox {
                                 text: qsTr("Bucket Quantity")
                                 from: 1
                                 to: 5

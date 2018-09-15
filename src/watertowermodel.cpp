@@ -25,7 +25,7 @@ WatertowerModel::WatertowerModel(QObject *parent) :
 {
     for (int row = 0; row < Watertower::count(); row++) {
         Watertower *watertower = Watertower::instance(row);
-        connect(watertower, &Watertower::linkChanged, [=] () {
+        connect(watertower, &Watertower::linkStatusChanged, [=] () {
             this->dataChanged(index(row, 0), index(row, 0), { LinkStatusRole });
         });
         connect(watertower, &Watertower::tunnageChanged, [=] () {
@@ -41,7 +41,7 @@ WatertowerModel::~WatertowerModel()
 {
     for (int row = 0; row < Watertower::count(); row++) {
         Watertower *watertower = Watertower::instance(row);
-        disconnect(watertower, &Watertower::linkChanged, nullptr, nullptr);
+        disconnect(watertower, &Watertower::linkStatusChanged, nullptr, nullptr);
         disconnect(watertower, &Watertower::tunnageChanged, nullptr, nullptr);
         disconnect(watertower, &Watertower::percentChanged, nullptr, nullptr);
     }
@@ -83,6 +83,8 @@ QVariant WatertowerModel::data(const QModelIndex &index, int role) const
         return Watertower::instance(row)->onOff();
     case RadiusRole:
         return Watertower::instance(row)->radius();
+    case BucketHeightRole:
+        return Watertower::instance(row)->bucketHeight();
     case BucketQuantityRole:
         return Watertower::instance(row)->bucketQuantity();
     case SensorTypeRole:
@@ -109,6 +111,9 @@ bool WatertowerModel::setData(const QModelIndex &index, const QVariant &value, i
         break;
     case RadiusRole:
         Watertower::instance(row)->setRadius(value.toInt());
+        break;
+    case BucketHeightRole:
+        Watertower::instance(row)->setBucketHeight(value.toInt());
         break;
     case BucketQuantityRole:
         Watertower::instance(row)->setBucketQuantity(value.toInt());

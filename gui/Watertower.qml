@@ -55,13 +55,12 @@ Item {
         color: Qt.rgba(0.0, 0.0, 0.0, 0.5)
         radius: 5
 
-        visible: linkStatus !== Options.Disabled
+        visible: linkStatus === Options.Attached
 
         Text {
             id: tunnageText
             anchors.centerIn: parent
             color: "yellow"
-            font.bold: true
             font.pointSize: 32
         }
     }
@@ -76,7 +75,7 @@ Item {
         from: 0
         to: 100
 
-        visible: linkStatus !== Options.Disabled
+        visible: linkStatus === Options.Attached
 
         background: Rectangle {
             implicitWidth: 24

@@ -32,6 +32,12 @@ class Watertower : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QString icon READ icon)
+    Q_PROPERTY(Options::LinkStatus linkStatus MEMBER m_linkStatus READ linkStatus NOTIFY linkStatusChanged)
+    Q_PROPERTY(double tunnage READ tunnage NOTIFY tunnageChanged)
+    Q_PROPERTY(int percent READ percent NOTIFY percentChanged)
+
     Q_PROPERTY(int identity MEMBER m_identity READ identity WRITE setIdentity)
     Q_PROPERTY(bool onOff MEMBER m_onOff READ onOff WRITE setOnOff)
     Q_PROPERTY(int radius MEMBER m_radius READ radius WRITE setRadius)
@@ -46,53 +52,68 @@ public:
 
     const QString name() const;
     const QString icon() const;
-    Options::LinkStatus linkStatus() const;
-    double tunnage() const;
-    int percent() const;
+    Options::LinkStatus linkStatus() const
+    {
+        if (m_onOff) {
+            return m_linkStatus;
+        } else {
+            return Options::Disabled;
+        }
+    }
 
-    int identity()
+    double tunnage() const
+    {
+        return m_tunnage;
+    }
+
+    int percent() const
+    {
+        return m_percent;
+    }
+
+    int identity() const
     {
         return m_identity;
     }
 
     void setIdentity(int id);
 
-    bool onOff()
+    bool onOff() const
     {
         return m_onOff;
     }
 
     void setOnOff(bool on);
 
-    int radius()
+    int radius() const
     {
         return m_radius;
     }
 
     void setRadius(int radius);
 
-    int bucketHeight()
+    int bucketHeight() const
     {
         return m_bucketHeight;
     }
 
     void setBucketHeight(int value);
 
-    int bucketQuantity()
+    int bucketQuantity() const
     {
         return m_bucketQuantity;
     }
 
     void setBucketQuantity(int quantity);
 
-    Options::SensorType sensorType()
+    Options::SensorType sensorType() const
     {
         return m_sensorType;
     }
 
     void setSensorType(Options::SensorType type);
 
-    int sensorQuantity()
+    int sensorQuantity() const
     {
         return m_sensorQuantity;
     }
@@ -100,7 +121,7 @@ public:
     void setSensorQuantity(int quantity);
 
 signals:
-    void linkChanged();
+    void linkStatusChanged();
     void tunnageChanged();
     void percentChanged();
 
