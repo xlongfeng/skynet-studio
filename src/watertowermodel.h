@@ -44,6 +44,7 @@ public:
     Q_ENUM(WatertowerRole)
 
     explicit WatertowerModel(QObject *parent = nullptr);
+    ~WatertowerModel();
 
     virtual int rowCount(const QModelIndex & = QModelIndex()) const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;

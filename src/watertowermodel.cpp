@@ -37,6 +37,16 @@ WatertowerModel::WatertowerModel(QObject *parent) :
     }
 }
 
+WatertowerModel::~WatertowerModel()
+{
+    for (int row = 0; row < Watertower::count(); row++) {
+        Watertower *watertower = Watertower::instance(row);
+        disconnect(watertower, &Watertower::linkChanged, nullptr, nullptr);
+        disconnect(watertower, &Watertower::tunnageChanged, nullptr, nullptr);
+        disconnect(watertower, &Watertower::percentChanged, nullptr, nullptr);
+    }
+}
+
 int WatertowerModel::rowCount(const QModelIndex &) const
 {
     return Watertower::count();
