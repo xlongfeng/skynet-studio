@@ -21,12 +21,18 @@
 enable_testing()
 
 set(STUDIO_SRC
+    stdio.c
+    utility.c
     settings.cpp
     options.cpp
     watertower.cpp
     watertowermodel.cpp
     halfduplexlinker.cpp
     )
+
+if (UNIX)
+    set(STUDIO_SRC ${STUDIO_SRC} os_linux.c)
+endif ()
 
 if (CMAKE_CROSSCOMPILING)
     set(IMAGES_PATH images)

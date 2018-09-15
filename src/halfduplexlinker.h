@@ -23,6 +23,8 @@
 #include <QObject>
 #include <QQueue>
 
+#include "utility.h"
+
 class Options;
 class QTimer;
 class QSerialPort;
@@ -33,10 +35,10 @@ class HalfDuplexLinker : public QObject
 
 public:
     static HalfDuplexLinker *instance();
-    void request(int id, const QString &cmd, const QString &arg);
+    void request(int id, const QString &cmd, quint16 arg);
 
 signals:
-    void response(int id, const QString &cmd , const QString &arg);
+    void response(int id, const QString &cmd , quint16 arg);
 
 private slots:
     void onPortSettingsChanged();
@@ -46,14 +48,15 @@ private slots:
 private:
     explicit HalfDuplexLinker(QObject *parent = nullptr);
     Q_DISABLE_COPY(HalfDuplexLinker)
+    void sendToClient();
 
 private:
     static HalfDuplexLinker *self;
     Options *options;
+    CmdBuf cmdBuf;
     QQueue<QString> packageQueue;
     QTimer *responseTimer;
     QSerialPort *port;
-
 };
 
 #endif // HALFDUPLEXLINKER_H

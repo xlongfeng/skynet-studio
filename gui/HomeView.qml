@@ -62,6 +62,8 @@ Page {
                     color: Qt.rgba(0.0, 0.0, 0.0, 0.5)
                     radius: 5
 
+                    visible: onOff
+
                     Text {
                         anchors.centerIn: parent
                         text: tunnage
@@ -81,6 +83,10 @@ Page {
                     from: 0
                     to: 100
                     value: percent
+
+                    visible: onOff
+
+                    indeterminate: link == Options.DisconnectedState
 
                     background: Rectangle {
                         id: background
@@ -110,6 +116,18 @@ Page {
                             }
                         }
                     }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "white"
+                    opacity: 0.75
+                    visible: link == Options.DisconnectedState
+                }
+
+                BusyIndicator {
+                    anchors.centerIn: parent
+                    running: link == Options.DisconnectedState
                 }
             }
         }

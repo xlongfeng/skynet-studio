@@ -17,13 +17,19 @@
  *
  */
 
+#include <cmath>
+#include <QTimer>
 #include <QDebug>
 
 #include "settings.h"
 #include "watertower.h"
+#include "halfduplexlinker.h"
 
 namespace {
 const int WatertowerQuantity = 6;
+const int QueryInterval = 3000;
+const int QeuryTimeout = QueryInterval * 3;
+const int AcousticVelocity = 340;
 }
 
 QMap<int, Watertower *> Watertower::watertowerGroup;
@@ -38,9 +44,23 @@ Watertower::Watertower(int index, QObject *parent) :
     m_identity = settings->value("identity", -1).toInt();
     m_onOff = settings->value("on-off", false).toBool();
     m_radius = settings->value("radius", 200).toInt();
+    m_bucketHeight = settings->value("bucket-height", 200).toInt();
     m_bucketQuantity = settings->value("bucket-quantity", 1).toInt();
     m_sensorType = settings->value("sensor-type", Options::WaterlevelSensor).value<Options::SensorType>();
     m_sensorQuantity = settings->value("sensor-quantity", 1).toInt();
+
+    linker = HalfDuplexLinker::instance();
+    connect(linker, SIGNAL(response(int,QString,quint16)), this, SLOT(response(int,QString,quint16)));
+
+    queryTimer = new QTimer(this);
+    connect(queryTimer, SIGNAL(timeout()), this, SLOT(query()));
+    queryTimeoutTimer =  new QTimer(this);
+    connect(queryTimeoutTimer, SIGNAL(timeout()), this, SLOT(queryTimeout()));
+
+    if (m_onOff) {
+        queryTimer->start(QueryInterval);
+        queryTimeoutTimer->start(QeuryTimeout);
+    }
 }
 
 Watertower *Watertower::instance(int index)
@@ -90,19 +110,23 @@ const QString Watertower::icon() const
     return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index);
 }
 
-Watertower::WatertowerState Watertower::state() const
+Options::WatertowerState Watertower::link() const
 {
-    return DisabledState;
+    if (m_onOff) {
+        return m_link;
+    } else {
+        return Options::DisabledState;
+    }
 }
 
 double Watertower::tunnage() const
 {
-    return 22 * index / 5.0;
+    return m_tunnage;
 }
 
 int Watertower::percent() const
 {
-    return 100 * index / 5;
+    return m_percent;
 }
 
 void Watertower::setIdentity(int id)
@@ -115,12 +139,28 @@ void Watertower::setOnOff(bool on)
 {
     m_onOff = on;
     settings->setValue("on-off", on);
+    emit linkChanged();
+    if (m_onOff) {
+        queryTimer->start(QueryInterval);
+        queryTimeoutTimer->start(QeuryTimeout);
+    } else {
+        queryTimeoutTimer->stop();
+        queryTimer->stop();
+    }
 }
 
 void Watertower::setRadius(int radius)
 {
     m_radius = radius;
     settings->setValue("radius", radius);
+}
+
+void Watertower::setBucketHeight(int value)
+{
+    if (m_bucketHeight != value) {
+        m_bucketHeight = value;
+        settings->setValue("bucket-height", value);
+    }
 }
 
 void Watertower::setBucketQuantity(int quantity)
@@ -139,4 +179,53 @@ void Watertower::setSensorQuantity(int quantity)
 {
     m_sensorQuantity = quantity;
     settings->setValue("sensor-quantity", quantity);
+}
+
+void Watertower::query()
+{
+    if (m_identity < 0)
+        return;
+    linker->request(m_identity, "Query", 0);
+}
+
+void Watertower::queryTimeout()
+{
+    m_link = Options::DisconnectedState;
+    emit linkChanged();
+}
+
+void Watertower::response(int id, const QString &cmd , quint16 arg)
+{
+    if (id != m_identity)
+        return;
+
+    queryTimeoutTimer->start(QeuryTimeout);
+
+    if (m_link == Options::DisconnectedState) {
+        m_link = Options::ConnectedState;
+        emit linkChanged();
+    }
+
+    if (cmd == "Query") {
+        int waterLevelCM;
+
+        switch (m_sensorType) {
+        case Options::WaterlevelSensor:
+            waterLevelCM = m_bucketHeight * arg / m_sensorQuantity;
+            break;
+        case Options::UltrasonicSensor:
+            waterLevelCM = m_bucketHeight - arg * AcousticVelocity / 10000 / 2;
+            break;
+        default:
+            return;
+        }
+
+        waterLevelCM = waterLevelCM > m_bucketHeight ? m_bucketHeight : waterLevelCM;
+        waterLevelCM = waterLevelCM < 0 ? 0 : waterLevelCM;
+        m_tunnage = 3.1415926 * pow(m_radius / 100.0, 2) * (waterLevelCM / 100.0) * m_bucketQuantity;
+        emit tunnageChanged();
+        m_percent = waterLevelCM * 100 / m_bucketHeight;
+        emit percentChanged();
+        // qDebug() << "Identity" << m_identity << waterLevelCM << m_tunnage << m_percent;
+    }
 }

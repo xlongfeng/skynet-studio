@@ -25,31 +25,28 @@
 
 #include "options.h"
 
+class HalfDuplexLinker;
+class QTimer;
+
 class Watertower : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int identity READ identity MEMBER m_identity WRITE setIdentity)
-    Q_PROPERTY(bool onOff READ onOff MEMBER m_onOff WRITE setOnOff)
-    Q_PROPERTY(int radius READ radius MEMBER m_radius WRITE setRadius)
-    Q_PROPERTY(int bucketQuantity READ bucketQuantity MEMBER m_bucketQuantity WRITE setBucketQuantity)
-    Q_PROPERTY(Options::SensorType sensorType READ sensorType MEMBER m_sensorType WRITE setSensorType)
-    Q_PROPERTY(int sensorQuantity READ sensorQuantity MEMBER m_sensorQuantity WRITE setSensorQuantity)
+    Q_PROPERTY(int identity MEMBER m_identity READ identity WRITE setIdentity)
+    Q_PROPERTY(bool onOff MEMBER m_onOff READ onOff WRITE setOnOff)
+    Q_PROPERTY(int radius MEMBER m_radius READ radius WRITE setRadius)
+    Q_PROPERTY(int bucketHeight MEMBER m_bucketHeight READ bucketHeight MEMBER m_bucketHeight WRITE setBucketHeight)
+    Q_PROPERTY(int bucketQuantity MEMBER m_bucketQuantity READ bucketQuantity WRITE setBucketQuantity)
+    Q_PROPERTY(Options::SensorType sensorType MEMBER m_sensorType READ sensorType WRITE setSensorType)
+    Q_PROPERTY(int sensorQuantity MEMBER m_sensorQuantity READ sensorQuantity WRITE setSensorQuantity)
 
 public:
-    enum WatertowerState {
-        DisabledState,
-        DisconnectedState,
-        ConnectedState,
-    };
-    Q_ENUM(WatertowerState)
-
     static Watertower *instance(int index);
     static int count();
 
     const QString name() const;
     const QString icon() const;
-    WatertowerState state() const;
+    Options::WatertowerState link() const;
     double tunnage() const;
     int percent() const;
 
@@ -74,6 +71,13 @@ public:
 
     void setRadius(int radius);
 
+    int bucketHeight()
+    {
+        return m_bucketHeight;
+    }
+
+    void setBucketHeight(int value);
+
     int bucketQuantity()
     {
         return m_bucketQuantity;
@@ -96,11 +100,16 @@ public:
     void setSensorQuantity(int quantity);
 
 signals:
-    void stateChanged();
+    void linkChanged();
     void tunnageChanged();
     void percentChanged();
 
 public slots:
+
+private slots:
+    void query();
+    void queryTimeout();
+    void response(int id, const QString &cmd , quint16 arg);
 
 private:
     Watertower(int index, QObject *parent = nullptr);
@@ -113,12 +122,22 @@ private:
 
     Settings *settings;
 
+    Options::WatertowerState m_link = Options::DisconnectedState;
+
     int m_identity;
     bool m_onOff;
     int m_radius;
+    int m_bucketHeight;
     int m_bucketQuantity;
     Options::SensorType m_sensorType;
     int m_sensorQuantity;
+
+    double m_tunnage = 0.0;
+    int m_percent = 0;
+
+    HalfDuplexLinker *linker;
+    QTimer *queryTimer;
+    QTimer *queryTimeoutTimer;
 };
 
 #endif // WATERTOWER_H

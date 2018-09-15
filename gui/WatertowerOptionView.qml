@@ -98,7 +98,7 @@ Page {
                                 }
                                 currentIndex: sensorType
                                 onValueUpdated: {
-                                    onValueModified: option.setData(option.index(row, 0), currentIndex, WatertowerModel.SensorTypeRole)
+                                    onValueModified: option.setData(option.index(index, 0), currentIndex, WatertowerModel.SensorTypeRole)
                                 }
                             }
 

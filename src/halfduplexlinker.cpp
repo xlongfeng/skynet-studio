@@ -19,12 +19,14 @@
 
 #include <QTimer>
 #include <QSerialPort>
+#include <QDebug>
 
 #include "options.h"
 #include "halfduplexlinker.h"
 
 namespace {
 const int ResponseTimeout = 200;    /* millisecond */
+const int ActionLenMax = 16;
 }
 
 HalfDuplexLinker *HalfDuplexLinker::self = nullptr;
@@ -33,6 +35,8 @@ HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     QObject(parent)
 {
     options = Options::instance();
+
+    cmdBufInit(&cmdBuf);
 
     responseTimer = new QTimer(this);
     responseTimer->setSingleShot(true);
@@ -59,12 +63,14 @@ HalfDuplexLinker *HalfDuplexLinker::instance()
     return self;
 }
 
-void HalfDuplexLinker::request(int id, const QString &cmd, const QString &arg)
+void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg)
 {
-    QString package = QString("@%1,%2,%3").arg(id, 0, 16).arg(cmd).arg(arg);
-    packageQueue.enqueue(package);
-    if (!responseTimer->isActive())
-        responseTimer->start(5);
+    CmdBuf cmdBuf;
+    cmdBufBuild(&cmdBuf, id, cmd.toLatin1().data(), arg);
+    packageQueue.enqueue(QString(cmdBuf.buf));
+    if (!responseTimer->isActive()) {
+        sendToClient();
+    }
 }
 
 void HalfDuplexLinker::onPortSettingsChanged()
@@ -77,13 +83,46 @@ void HalfDuplexLinker::onPortSettingsChanged()
 
 void HalfDuplexLinker::onResponseTimeout()
 {
-    if(!packageQueue.isEmpty()) {
-        packageQueue.dequeue();
-        responseTimer->start(ResponseTimeout);
-    }
+    sendToClient();
 }
 
 void HalfDuplexLinker::onReadyRead()
 {
+    char action[ActionLenMax];
+    quint8 addr;
+    quint16 arg;
+    char cbyte;
+    pCmdBuf pCmd = &cmdBuf;
 
+    int bytes = port->bytesAvailable();
+    if (bytes > 0) {
+        QByteArray buf = port->readAll();
+        for (int i = 0; i < buf.size(); i++) {
+            cbyte = buf[i];
+            if (cbyte == '\r' || cbyte == '\n') {
+                cmdBufPushEnd(pCmd);
+                if (cmdBufSize(pCmd) > 0) {
+                    cmdBufGetAddr(pCmd, &addr);
+                    cmdBufGetAction(pCmd, action, ActionLenMax);
+                    cmdBufGetArg(pCmd, &arg);
+                    if (cmdBufValidation(pCmd) == CMD_BUF_OK) {
+                        emit response(addr, action, arg);
+                        sendToClient();
+                    }
+                }
+                cmdBufReset(pCmd);
+            }  else {
+                cmdBufPushByte(pCmd, cbyte);
+            }
+        }
+    }
+}
+
+void HalfDuplexLinker::sendToClient()
+{
+    if(!packageQueue.isEmpty()) {
+        QString request = packageQueue.dequeue();
+        port->write(request.toLatin1());
+        responseTimer->start(ResponseTimeout);
+    }
 }
