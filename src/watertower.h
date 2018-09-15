@@ -46,7 +46,7 @@ public:
 
     const QString name() const;
     const QString icon() const;
-    Options::WatertowerState link() const;
+    Options::LinkStatus linkStatus() const;
     double tunnage() const;
     int percent() const;
 
@@ -122,7 +122,7 @@ private:
 
     Settings *settings;
 
-    Options::WatertowerState m_link = Options::DisconnectedState;
+    Options::LinkStatus m_linkStatus = Options::Detached;
 
     int m_identity;
     bool m_onOff;

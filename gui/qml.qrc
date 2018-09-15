@@ -8,5 +8,6 @@
         <file>LabelSpinBox.qml</file>
         <file>LabelSwitch.qml</file>
         <file>LabelComboBox.qml</file>
+        <file>Watertower.qml</file>
     </qresource>
 </RCC>

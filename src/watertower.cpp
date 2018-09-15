@@ -110,12 +110,12 @@ const QString Watertower::icon() const
     return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index);
 }
 
-Options::WatertowerState Watertower::link() const
+Options::LinkStatus Watertower::linkStatus() const
 {
     if (m_onOff) {
-        return m_link;
+        return m_linkStatus;
     } else {
-        return Options::DisabledState;
+        return Options::Disabled;
     }
 }
 
@@ -190,7 +190,7 @@ void Watertower::query()
 
 void Watertower::queryTimeout()
 {
-    m_link = Options::DisconnectedState;
+    m_linkStatus = Options::Detached;
     emit linkChanged();
 }
 
@@ -201,8 +201,8 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
 
     queryTimeoutTimer->start(QeuryTimeout);
 
-    if (m_link == Options::DisconnectedState) {
-        m_link = Options::ConnectedState;
+    if (m_linkStatus == Options::Detached) {
+        m_linkStatus = Options::Attached;
         emit linkChanged();
     }
 

@@ -35,12 +35,12 @@ class Options : public QObject
     Q_PROPERTY(qint32 shutdownMinute MEMBER m_shutdownMinute READ shutdownMinute WRITE setShutdownMinute NOTIFY shutdownMinuteChanged)
 
 public:
-    enum WatertowerState {
-        DisabledState,
-        DisconnectedState,
-        ConnectedState,
+    enum LinkStatus {
+        Disabled,
+        Detached,
+        Attached,
     };
-    Q_ENUM(WatertowerState)
+    Q_ENUM(LinkStatus)
 
     enum SensorType {
         WaterlevelSensor,

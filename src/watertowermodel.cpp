@@ -26,7 +26,7 @@ WatertowerModel::WatertowerModel(QObject *parent) :
     for (int row = 0; row < Watertower::count(); row++) {
         Watertower *watertower = Watertower::instance(row);
         connect(watertower, &Watertower::linkChanged, [=] () {
-            this->dataChanged(index(row, 0), index(row, 0), { LinkRole });
+            this->dataChanged(index(row, 0), index(row, 0), { LinkStatusRole });
         });
         connect(watertower, &Watertower::tunnageChanged, [=] () {
             this->dataChanged(index(row, 0), index(row, 0), { TunnageRole });
@@ -71,8 +71,8 @@ QVariant WatertowerModel::data(const QModelIndex &index, int role) const
         return Watertower::instance(row)->name();
     case IconRole:
         return Watertower::instance(row)->icon();
-    case LinkRole:
-        return Watertower::instance(row)->link();
+    case LinkStatusRole:
+        return Watertower::instance(row)->linkStatus();
     case TunnageRole:
         return QString::number(Watertower::instance(row)->tunnage(), 'f', 1);
     case PercentRole:
@@ -131,7 +131,7 @@ QHash<int, QByteArray> WatertowerModel::roleNames() const
     static const QHash<int, QByteArray> roles {
         { NameRole, "name" },
         { IconRole, "icon" },
-        { LinkRole, "link" },
+        { LinkStatusRole, "linkStatus" },
         { TunnageRole, "tunnage" },
         { PercentRole, "percent" },
         { IdentityRole, "identity" },
