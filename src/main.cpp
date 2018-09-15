@@ -21,7 +21,6 @@
 #include <QQmlApplicationEngine>
 
 #include "options.h"
-#include "watertower.h"
 #include "watertowermodel.h"
 
 static QObject *options_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -42,7 +41,6 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(qml);
 
     qmlRegisterSingletonType<Options>("Backend", 1, 0, "Options", options_singletontype_provider);
-    qmlRegisterType<Watertower>("Backend", 1, 0, "Watertower");
     qmlRegisterType<WatertowerModel>("Backend", 1, 0, "WatertowerModel");
 
     QQmlApplicationEngine engine;

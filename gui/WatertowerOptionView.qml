@@ -93,8 +93,8 @@ Page {
                                 text: qsTr("Sensor Type")
                                 textRole: "name"
                                 model: ListModel {
-                                    ListElement { name: "Waterlevel"; value: Watertower.WaterlevelSensor }
-                                    ListElement { name: "Ultrasonic"; value: Watertower.UltrasonicSensor }
+                                    ListElement { name: "Waterlevel"; value: Options.WaterlevelSensor }
+                                    ListElement { name: "Ultrasonic"; value: Options.UltrasonicSensor }
                                 }
                                 currentIndex: sensorType
                                 onValueUpdated: {

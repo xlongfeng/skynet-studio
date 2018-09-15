@@ -35,6 +35,12 @@ class Options : public QObject
     Q_PROPERTY(qint32 shutdownMinute MEMBER m_shutdownMinute READ shutdownMinute WRITE setShutdownMinute NOTIFY shutdownMinuteChanged)
 
 public:
+    enum SensorType {
+        WaterlevelSensor,
+        UltrasonicSensor,
+    };
+    Q_ENUM(SensorType)
+
     static Options *instance();
 
     Q_INVOKABLE void setHardwareClock(int year, int month, int day, int hour, int minute, int second);

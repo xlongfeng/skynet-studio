@@ -104,7 +104,7 @@ bool WatertowerModel::setData(const QModelIndex &index, const QVariant &value, i
         Watertower::instance(row)->setBucketQuantity(value.toInt());
         break;
     case SensorTypeRole:
-        Watertower::instance(row)->setSensorType(qvariant_cast<Watertower::SensorType>(value));
+        Watertower::instance(row)->setSensorType(qvariant_cast<Options::SensorType>(value));
         break;
     case SensorQuantityRole:
         Watertower::instance(row)->setSensorQuantity(value.toInt());

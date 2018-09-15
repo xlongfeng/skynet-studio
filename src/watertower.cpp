@@ -28,13 +28,6 @@ const int WatertowerQuantity = 6;
 
 QMap<int, Watertower *> Watertower::watertowerGroup;
 
-Watertower::Watertower(QObject *parent) :
-    QObject(parent),
-    index(-1)
-{
-
-}
-
 Watertower::Watertower(int index, QObject *parent) :
     QObject(parent),
     index(index),
@@ -46,16 +39,8 @@ Watertower::Watertower(int index, QObject *parent) :
     m_onOff = settings->value("on-off", false).toBool();
     m_radius = settings->value("radius", 200).toInt();
     m_bucketQuantity = settings->value("bucket-quantity", 1).toInt();
-    m_sensorType = settings->value("sensor-type", WaterlevelSensor).value<SensorType>();
+    m_sensorType = settings->value("sensor-type", Options::WaterlevelSensor).value<Options::SensorType>();
     m_sensorQuantity = settings->value("sensor-quantity", 1).toInt();
-}
-
-Watertower::~Watertower()
-{
-    /* index group */
-    settings->endGroup();
-    /* Watertower group */
-    settings->endGroup();
 }
 
 Watertower *Watertower::instance(int index)
@@ -144,7 +129,7 @@ void Watertower::setBucketQuantity(int quantity)
     settings->setValue("bucket-quantity", quantity);
 }
 
-void Watertower::setSensorType(SensorType type)
+void Watertower::setSensorType(Options::SensorType type)
 {
     m_sensorType = type;
     settings->setValue("sensor-type", type);

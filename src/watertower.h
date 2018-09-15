@@ -23,7 +23,7 @@
 #include <QObject>
 #include <QMap>
 
-class Settings;
+#include "options.h"
 
 class Watertower : public QObject
 {
@@ -33,7 +33,7 @@ class Watertower : public QObject
     Q_PROPERTY(bool onOff READ onOff MEMBER m_onOff WRITE setOnOff)
     Q_PROPERTY(int radius READ radius MEMBER m_radius WRITE setRadius)
     Q_PROPERTY(int bucketQuantity READ bucketQuantity MEMBER m_bucketQuantity WRITE setBucketQuantity)
-    Q_PROPERTY(SensorType sensorType READ sensorType MEMBER m_sensorType WRITE setSensorType)
+    Q_PROPERTY(Options::SensorType sensorType READ sensorType MEMBER m_sensorType WRITE setSensorType)
     Q_PROPERTY(int sensorQuantity READ sensorQuantity MEMBER m_sensorQuantity WRITE setSensorQuantity)
 
 public:
@@ -43,15 +43,6 @@ public:
         ConnectedState,
     };
     Q_ENUM(WatertowerState)
-
-    enum SensorType {
-        WaterlevelSensor,
-        UltrasonicSensor,
-    };
-    Q_ENUM(SensorType)
-
-    explicit Watertower(QObject *parent = nullptr);
-    ~Watertower();
 
     static Watertower *instance(int index);
     static int count();
@@ -90,12 +81,12 @@ public:
 
     void setBucketQuantity(int quantity);
 
-    SensorType sensorType()
+    Options::SensorType sensorType()
     {
         return m_sensorType;
     }
 
-    void setSensorType(SensorType type);
+    void setSensorType(Options::SensorType type);
 
     int sensorQuantity()
     {
@@ -126,7 +117,7 @@ private:
     bool m_onOff;
     int m_radius;
     int m_bucketQuantity;
-    SensorType m_sensorType;
+    Options::SensorType m_sensorType;
     int m_sensorQuantity;
 };
 
