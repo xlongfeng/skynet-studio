@@ -64,7 +64,6 @@ Page {
                                 from: -1
                                 to: 127
                                 value: identity
-                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.IdentityRole)
                             }
 
                             LabelSwitch {

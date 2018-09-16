@@ -26,6 +26,7 @@
 #include "halfduplexlinker.h"
 
 namespace {
+const int IdentityBase = 0x10;
 const int WatertowerQuantity = 6;
 const int QueryInterval = 3000;
 const int QeuryTimeout = QueryInterval * 3;
@@ -39,9 +40,10 @@ Watertower::Watertower(int index, QObject *parent) :
     index(index),
     settings(new Settings(this))
 {
+    m_identity = IdentityBase + index;
+
     settings->beginGroup("Watertower");
     settings->beginGroup(QString::number(index));
-    m_identity = settings->value("identity", -1).toInt();
     m_onOff = settings->value("on-off", false).toBool();
     m_radius = settings->value("radius", 200).toInt();
     m_bucketHeight = settings->value("bucket-height", 200).toInt();
@@ -91,7 +93,7 @@ const QString Watertower::name() const
     case 0:
         return tr("Ground floor");
     case 1:
-        return tr("Second floor");
+        return tr("Third floor");
     case 2:
         return tr("Seaside");
     case 3:
@@ -108,12 +110,6 @@ const QString Watertower::name() const
 const QString Watertower::icon() const
 {
     return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index);
-}
-
-void Watertower::setIdentity(int id)
-{
-    m_identity = id;
-    settings->setValue("identity", m_identity);
 }
 
 void Watertower::setOnOff(bool on)
@@ -164,8 +160,6 @@ void Watertower::setSensorQuantity(int quantity)
 
 void Watertower::query()
 {
-    if (m_identity < 0)
-        return;
     linker->request(m_identity, "Query", 0);
 }
 

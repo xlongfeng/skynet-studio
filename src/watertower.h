@@ -34,11 +34,11 @@ class Watertower : public QObject
 
     Q_PROPERTY(QString name READ name)
     Q_PROPERTY(QString icon READ icon)
+    Q_PROPERTY(int identity MEMBER m_identity READ identity)
     Q_PROPERTY(Options::LinkStatus linkStatus MEMBER m_linkStatus READ linkStatus NOTIFY linkStatusChanged)
     Q_PROPERTY(double tunnage READ tunnage NOTIFY tunnageChanged)
     Q_PROPERTY(int percent READ percent NOTIFY percentChanged)
 
-    Q_PROPERTY(int identity MEMBER m_identity READ identity WRITE setIdentity)
     Q_PROPERTY(bool onOff MEMBER m_onOff READ onOff WRITE setOnOff)
     Q_PROPERTY(int radius MEMBER m_radius READ radius WRITE setRadius)
     Q_PROPERTY(int bucketHeight MEMBER m_bucketHeight READ bucketHeight MEMBER m_bucketHeight WRITE setBucketHeight)
@@ -52,6 +52,12 @@ public:
 
     const QString name() const;
     const QString icon() const;
+
+    int identity() const
+    {
+        return m_identity;
+    }
+
     Options::LinkStatus linkStatus() const
     {
         if (m_onOff) {
@@ -70,13 +76,6 @@ public:
     {
         return m_percent;
     }
-
-    int identity() const
-    {
-        return m_identity;
-    }
-
-    void setIdentity(int id);
 
     bool onOff() const
     {
@@ -140,12 +139,12 @@ private:
     static QMap<int, Watertower *> watertowerGroup;
 
     int index;
+    int m_identity;
 
     Settings *settings;
 
     Options::LinkStatus m_linkStatus = Options::Detached;
 
-    int m_identity;
     bool m_onOff;
     int m_radius;
     int m_bucketHeight;

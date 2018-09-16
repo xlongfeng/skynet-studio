@@ -71,14 +71,14 @@ QVariant WatertowerModel::data(const QModelIndex &index, int role) const
         return Watertower::instance(row)->name();
     case IconRole:
         return Watertower::instance(row)->icon();
+    case IdentityRole:
+        return Watertower::instance(row)->identity();
     case LinkStatusRole:
         return Watertower::instance(row)->linkStatus();
     case TunnageRole:
         return QString::number(Watertower::instance(row)->tunnage(), 'f', 1);
     case PercentRole:
         return Watertower::instance(row)->percent();
-    case IdentityRole:
-        return Watertower::instance(row)->identity();
     case OnOffRole:
         return Watertower::instance(row)->onOff();
     case RadiusRole:
@@ -103,9 +103,6 @@ bool WatertowerModel::setData(const QModelIndex &index, const QVariant &value, i
 
     int row = index.row();
     switch (role) {
-    case IdentityRole:
-        Watertower::instance(row)->setIdentity(value.toInt());
-        break;
     case OnOffRole:
         Watertower::instance(row)->setOnOff(value.toBool());
         break;

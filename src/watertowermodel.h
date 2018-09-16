@@ -30,10 +30,10 @@ public:
     enum WatertowerRole {
         NameRole = Qt::DisplayRole,
         IconRole = Qt::UserRole,
+        IdentityRole,
         LinkStatusRole,
         TunnageRole,
         PercentRole,
-        IdentityRole,
         OnOffRole,
         RadiusRole,
         BucketHeightRole,
