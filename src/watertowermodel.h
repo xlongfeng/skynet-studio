@@ -20,6 +20,7 @@
 #ifndef WATERTOWERLISTMODEL_H
 #define WATERTOWERLISTMODEL_H
 
+#include <QMetaObject>
 #include <QAbstractListModel>
 
 class WatertowerModel : public QAbstractListModel
@@ -51,6 +52,9 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     virtual QHash<int, QByteArray> roleNames() const override;
+
+private:
+    QList<QMetaObject::Connection> connects;
 };
 
 #endif // WATERTOWERLISTMODEL_H

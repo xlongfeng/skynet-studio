@@ -37,84 +37,124 @@ Page {
             Loader {
                 active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
                 sourceComponent: Item {
+                    property int indexRow: index
                     width: container.width
                     height: container.height
-                    Row {
+                    Column {
                         anchors.centerIn: parent
+                        spacing: 8
 
-                        spacing: 16
-
-                        Image {
-                            source: icon
-                            sourceSize.width: 320
-                            sourceSize.height: 320
-                        }
-
-                        Column {
-                            spacing: 4
-
+                        RowLayout {
+                            width: control.width
                             Label {
                                 text: name
-                                font.pointSize: 12
-                                leftPadding: 8
+                                font.pointSize: 24
+                                Layout.leftMargin: 8
+                                Layout.fillWidth: true
                             }
 
-                            LabelSpinBox {
-                                text: qsTr("Identity")
-                                from: -1
-                                to: 127
-                                value: identity
-                            }
-
-                            LabelSwitch {
-                                text: qsTr("On-Off")
+                            Switch {
                                 checked: onOff
-                                onValueUpdated: option.setData(option.index(index, 0), checked, WatertowerModel.OnOffRole)
+                                onClicked: option.setData(option.index(indexRow, 0), checked, WatertowerModel.OnOffRole)
+                            }
+                        }
+
+                        Row {
+                            id: control
+
+                            spacing: 8
+
+                            Watertower {
+                                width: 320
+                                height: 320
+                                icon: model.icon
+                                linkStatus: model.linkStatus
+                                tunnage: model.tunnage
+                                percent: model.percent
                             }
 
-                            LabelSpinBox {
-                                text: qsTr("Radius (cm)")
-                                from: 100
-                                to: 400
-                                value: radius
-                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.RadiusRole)
-                            }
+                            Grid {
+                                columns: 2
+                                spacing: 4
 
-                            LabelSpinBox {
-                                text: qsTr("Bucket Height (cm)")
-                                from: 100
-                                to: 500
-                                value: bucketHeight
-                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.BucketHeightRole)
-                            }
-
-                            LabelSpinBox {
-                                text: qsTr("Bucket Quantity")
-                                from: 1
-                                to: 5
-                                value: bucketQuantity
-                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.BucketQuantityRole)
-                            }
-
-                            LabelComboBox {
-                                text: qsTr("Sensor Type")
-                                textRole: "name"
-                                model: ListModel {
-                                    ListElement { name: "Waterlevel"; value: Options.WaterlevelSensor }
-                                    ListElement { name: "Ultrasonic"; value: Options.UltrasonicSensor }
+                                Label {
+                                    text: qsTr("Identity")
+                                    font.pointSize: 12
                                 }
-                                currentIndex: sensorType
-                                onValueUpdated: {
-                                    onValueModified: option.setData(option.index(index, 0), currentIndex, WatertowerModel.SensorTypeRole)
-                                }
-                            }
 
-                            LabelSpinBox {
-                                text: qsTr("Sensor Quantity")
-                                from: 1
-                                to: 16
-                                value: sensorQuantity
-                                onValueUpdated: option.setData(option.index(index, 0), value, WatertowerModel.SensorQuantityRole)
+                                TextField {
+                                    text: identity
+                                    readOnly: true
+                                    width: 160
+                                }
+
+                                Label {
+                                    text: qsTr("Bucket Radius (cm)")
+                                    font.pointSize: 12
+                                }
+
+                                SpinBox {
+                                    from: 100
+                                    to: 400
+                                    value: radius
+                                    width: 160
+                                    onValueModified: option.setData(option.index(indexRow, 0), value, WatertowerModel.RadiusRole)
+                                }
+
+                                Label {
+                                    text: qsTr("Bucket Height (cm)")
+                                    font.pointSize: 12
+                                }
+
+                                SpinBox {
+                                    from: 100
+                                    to: 500
+                                    value: bucketHeight
+                                    width: 160
+                                    onValueModified: option.setData(option.index(indexRow, 0), value, WatertowerModel.BucketHeightRole)
+                                }
+
+                                Label {
+                                    text: qsTr("Bucket Quantity")
+                                    font.pointSize: 12
+                                }
+
+                                SpinBox {
+                                    from: 1
+                                    to: 5
+                                    value: bucketQuantity
+                                    width: 160
+                                    onValueModified: option.setData(option.index(indexRow, 0), value, WatertowerModel.BucketQuantityRole)
+                                }
+
+                                Label {
+                                    text: qsTr("Sensor Type")
+                                    font.pointSize: 12
+                                }
+
+                                ComboBox {
+                                    textRole: "name"
+                                    model: ListModel {
+                                        ListElement { name: "Waterlevel"; value: Options.WaterlevelSensor }
+                                        ListElement { name: "Ultrasonic"; value: Options.UltrasonicSensor }
+                                    }
+                                    currentIndex: sensorType
+                                    width: 160
+                                    onActivated: option.setData(option.index(indexRow, 0), index, WatertowerModel.SensorTypeRole)
+                                }
+
+                                Label {
+                                    text: qsTr("Sensor Quantity")
+                                    font.pointSize: 12
+                                }
+
+                                SpinBox {
+                                    from: 1
+                                    to: 16
+                                    value: sensorQuantity
+                                    width: 160
+                                    onValueModified: option.setData(option.index(indexRow, 0), value, WatertowerModel.SensorQuantityRole)
+                                }
                             }
                         }
                     }

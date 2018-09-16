@@ -25,25 +25,29 @@ WatertowerModel::WatertowerModel(QObject *parent) :
 {
     for (int row = 0; row < Watertower::count(); row++) {
         Watertower *watertower = Watertower::instance(row);
-        connect(watertower, &Watertower::linkStatusChanged, [=] () {
+        QMetaObject::Connection conn;
+
+        conn = connect(watertower, &Watertower::linkStatusChanged, [=] () {
             this->dataChanged(index(row, 0), index(row, 0), { LinkStatusRole });
         });
-        connect(watertower, &Watertower::tunnageChanged, [=] () {
+        connects.append(conn);
+
+        conn = connect(watertower, &Watertower::tunnageChanged, [=] () {
             this->dataChanged(index(row, 0), index(row, 0), { TunnageRole });
         });
-        connect(watertower, &Watertower::percentChanged, [=] () {
+        connects.append(conn);
+
+        conn = connect(watertower, &Watertower::percentChanged, [=] () {
             this->dataChanged(index(row, 0), index(row, 0), { PercentRole });
         });
+        connects.append(conn);
     }
 }
 
 WatertowerModel::~WatertowerModel()
 {
-    for (int row = 0; row < Watertower::count(); row++) {
-        Watertower *watertower = Watertower::instance(row);
-        disconnect(watertower, &Watertower::linkStatusChanged, nullptr, nullptr);
-        disconnect(watertower, &Watertower::tunnageChanged, nullptr, nullptr);
-        disconnect(watertower, &Watertower::percentChanged, nullptr, nullptr);
+    for (auto conn: connects) {
+        disconnect(conn);
     }
 }
 
