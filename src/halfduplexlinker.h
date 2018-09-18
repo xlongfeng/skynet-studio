@@ -21,6 +21,7 @@
 #define HALFDUPLEXLINKER_H
 
 #include <QObject>
+#include <QStateMachine>
 #include <QQueue>
 
 #include "utility.h"
@@ -40,23 +41,29 @@ public:
 signals:
     void response(int id, const QString &cmd , quint16 arg);
 
+    void readyToSend();
+    void responseReceived();
+    void queueEmpty();
+
 private slots:
     void onPortSettingsChanged();
-    void onResponseTimeout();
     void onReadyRead();
+
+    void onRequestStateEntered();
+    void onRequestStateExited();
 
 private:
     explicit HalfDuplexLinker(QObject *parent = nullptr);
     Q_DISABLE_COPY(HalfDuplexLinker)
-    void sendToClient();
 
 private:
     static HalfDuplexLinker *self;
     Options *options;
     CmdBuf cmdBuf;
     QQueue<QString> packageQueue;
-    QTimer *responseTimer;
     QSerialPort *port;
+    QTimer *responseTimeoutTimer;
+    QStateMachine machine;
 };
 
 #endif // HALFDUPLEXLINKER_H

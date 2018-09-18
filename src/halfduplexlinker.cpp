@@ -38,10 +38,6 @@ HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
 
     cmdBufInit(&cmdBuf);
 
-    responseTimer = new QTimer(this);
-    responseTimer->setSingleShot(true);
-    connect(responseTimer, SIGNAL(timeout()), this, SLOT(onResponseTimeout()));
-
     port = new QSerialPort(options->portName(), this);
     port->setBaudRate(options->baudRate());
     port->setDataBits(QSerialPort::Data8);
@@ -52,6 +48,23 @@ HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     connect(port, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
     connect(options, SIGNAL(portNameChanged()), this, SLOT(onPortSettingsChanged()));
     connect(options, SIGNAL(baudRateChanged()), this, SLOT(onPortSettingsChanged()));
+
+    QState *idleState = new QState();
+    machine.addState(idleState);
+
+    QState *requestState = new QState();
+    idleState->addTransition(this, SIGNAL(readyToSend()), requestState);
+    requestState->addTransition(this, SIGNAL(queueEmpty()), idleState);
+    responseTimeoutTimer = new QTimer(this);
+    responseTimeoutTimer->setSingleShot(true);
+    requestState->addTransition(responseTimeoutTimer, SIGNAL(timeout()), requestState);
+    requestState->addTransition(this, SIGNAL(responseReceived()), requestState);
+    connect(requestState, SIGNAL(entered()), this, SLOT(onRequestStateEntered()));
+    connect(requestState, SIGNAL(exited()), this, SLOT(onRequestStateExited()));
+    machine.addState(requestState);
+
+    machine.setInitialState(idleState);
+    machine.start();
 }
 
 HalfDuplexLinker *HalfDuplexLinker::instance()
@@ -68,9 +81,7 @@ void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg)
     CmdBuf cmdBuf;
     cmdBufBuild(&cmdBuf, id, cmd.toLatin1().data(), arg);
     packageQueue.enqueue(QString(cmdBuf.buf));
-    if (!responseTimer->isActive()) {
-        sendToClient();
-    }
+    emit readyToSend();
 }
 
 void HalfDuplexLinker::onPortSettingsChanged()
@@ -79,11 +90,6 @@ void HalfDuplexLinker::onPortSettingsChanged()
     port->setPortName(options->portName());
     port->setBaudRate(options->baudRate());
     port->open(QIODevice::ReadWrite);
-}
-
-void HalfDuplexLinker::onResponseTimeout()
-{
-    sendToClient();
 }
 
 void HalfDuplexLinker::onReadyRead()
@@ -107,7 +113,7 @@ void HalfDuplexLinker::onReadyRead()
                     cmdBufGetArg(pCmd, &arg);
                     if (cmdBufValidation(pCmd) == CMD_BUF_OK) {
                         emit response(addr, action, arg);
-                        sendToClient();
+                        emit responseReceived();
                     }
                 }
                 cmdBufReset(pCmd);
@@ -118,11 +124,17 @@ void HalfDuplexLinker::onReadyRead()
     }
 }
 
-void HalfDuplexLinker::sendToClient()
+void HalfDuplexLinker::onRequestStateEntered()
 {
     if(!packageQueue.isEmpty()) {
         QString request = packageQueue.dequeue();
         port->write(request.toLatin1());
-        responseTimer->start(ResponseTimeout);
+        responseTimeoutTimer->start(ResponseTimeout);
+    } else {
+        emit queueEmpty();
     }
+}
+void HalfDuplexLinker::onRequestStateExited()
+{
+    responseTimeoutTimer->stop();
 }
