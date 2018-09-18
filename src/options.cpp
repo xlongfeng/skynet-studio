@@ -19,6 +19,7 @@
 
 #include <QProcess>
 #include <QSerialPortInfo>
+#include <QFile>
 #include <QDebug>
 
 #include "settings.h"
@@ -31,6 +32,12 @@ Options::Options(QObject *parent) : QObject(parent),
 {
     m_portName = settings->value("port-name", "COM1").toString();
     m_baudRate = settings->value("baud-rate", 38400).toInt();
+    m_backlight = settings->value("backlight", -1).toInt();
+    if (m_backlight == -1) {
+        m_backlight = backlightDefault();
+    } else {
+        setBrightness(m_backlight);
+    }
     m_autoShutdown = settings->value("auto-shutdown", false).toBool();
     m_shutdownHour = settings->value("shutdown-hour", 23).toInt();
     m_shutdownMinute = settings->value("shutdown-minute", 0).toInt();
@@ -84,7 +91,7 @@ void Options::setPortName(const QString &name)
 {
     if (m_portName != name) {
         m_portName = name;
-        settings->setValue("port-name", m_portName);
+        settings->setValue("port-name", name);
         emit portNameChanged();
     }
 }
@@ -93,16 +100,72 @@ void Options::setBaudRate(qint32 rate)
 {
     if (m_baudRate != rate) {
         m_baudRate = rate;
-        settings->setValue("baud-rate", m_baudRate);
+        settings->setValue("baud-rate", rate);
         emit baudRateChanged();
     }
+}
+
+qint32 Options::backlightMax()
+{
+#ifdef __arm__
+    QFile file("/sys/class/backlight/backlight-lvds/max_brightness");
+#else
+    QFile file("/sys/class/backlight/intel_backlight/max_brightness");
+#endif
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return 0;
+    QTextStream in(&file);
+    qint32 value;
+    in >> value;
+    file.close();
+    return value;
+}
+
+qint32 Options::backlightDefault()
+{
+#ifdef __arm__
+    QFile file("/sys/class/backlight/backlight-lvds/actual_brightness");
+#else
+    QFile file("/sys/class/backlight/intel_backlight/actual_brightness");
+#endif
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return -1;
+    QTextStream in(&file);
+    qint32 value;
+    in >> value;
+    file.close();
+    return value;
+}
+
+void Options::setBacklight(qint32 value)
+{
+    if (m_backlight != value) {
+        setBrightness(m_backlight);
+        m_backlight = value;
+        settings->setValue("backlight", value);
+        emit backlightChanged();
+    }
+}
+
+void Options::setBrightness(qint32 value)
+{
+#ifdef __arm__
+    QFile file("/sys/class/backlight/backlight-lvds/brightness");
+#else
+    QFile file("/sys/class/backlight/intel_backlight/brightness");
+#endif
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+    QTextStream out(&file);
+    out << value;
+    file.close();
 }
 
 void Options::setAutoShutdown(bool enabled)
 {
     if (m_autoShutdown != enabled) {
         m_autoShutdown = enabled;
-        settings->setValue("auto-shutdown", m_autoShutdown);
+        settings->setValue("auto-shutdown", enabled);
         emit autoShutdownChanged();
     }
 }
@@ -111,7 +174,7 @@ void Options::setShutdownHour(qint32 value)
 {
     if (m_shutdownHour != value) {
         m_shutdownHour = value;
-        settings->setValue("shutdown-hour", m_shutdownHour);
+        settings->setValue("shutdown-hour", value);
         emit shutdownHourChanged();
     }
 }
@@ -120,7 +183,7 @@ void Options::setShutdownMinute(qint32 value)
 {
     if (m_shutdownMinute != value) {
         m_shutdownMinute = value;
-        settings->setValue("shutdown-minute", m_shutdownMinute);
+        settings->setValue("shutdown-minute", value);
         emit shutdownMinuteChanged();
     }
 }

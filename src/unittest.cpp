@@ -86,6 +86,20 @@ private slots:
         QCOMPARE(portNameChangedSpy.count(), 2);
         QCOMPARE(baudRateChangedSpy.count(), 1);
     }
+
+    void backlightTest()
+    {
+        Options *opt = Options::instance();
+        qint32 backlightMax = opt->backlightMax();
+        qint32 backlightDefault = opt->backlightDefault();
+        qDebug() << "backlight max" << backlightMax;
+        qDebug() << "backlight default" << backlightDefault;
+        qint32 backlight = backlightDefault + backlightMax * 20 / 100;
+        qDebug() << "backlight lighter 20%" << backlight;
+        opt->setBacklight(backlight);
+        // QTest::qWait(2000);
+        opt->setBacklight(backlightDefault);
+    }
 };
 
 QTEST_MAIN(Unittest)

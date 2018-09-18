@@ -30,6 +30,7 @@ class Options : public QObject
 
     Q_PROPERTY(QString portName MEMBER m_portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(qint32 baudRate MEMBER m_baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
+    Q_PROPERTY(qint32 backlight MEMBER m_backlight READ backlight WRITE setBacklight NOTIFY backlightChanged)
     Q_PROPERTY(bool autoShutdown MEMBER m_autoShutdown READ autoShutdown WRITE setAutoShutdown NOTIFY autoShutdownChanged)
     Q_PROPERTY(qint32 shutdownHour MEMBER m_shutdownHour READ shutdownHour WRITE setShutdownHour NOTIFY shutdownHourChanged)
     Q_PROPERTY(qint32 shutdownMinute MEMBER m_shutdownMinute READ shutdownMinute WRITE setShutdownMinute NOTIFY shutdownMinuteChanged)
@@ -67,6 +68,14 @@ public:
     }
     void setBaudRate(qint32 rate);
 
+    Q_INVOKABLE qint32 backlightMax();
+    Q_INVOKABLE qint32 backlightDefault();
+    qint32 backlight()
+    {
+        return m_backlight;
+    }
+    void setBacklight(qint32 value);
+
     bool autoShutdown() const
     {
         return m_autoShutdown;
@@ -88,6 +97,7 @@ public:
 signals:
     void portNameChanged();
     void baudRateChanged();
+    void backlightChanged();
     void autoShutdownChanged();
     void shutdownHourChanged();
     void shutdownMinuteChanged();
@@ -97,6 +107,7 @@ public slots:
 private:
     explicit Options(QObject *parent = nullptr);
     Q_DISABLE_COPY(Options)
+    void setBrightness(qint32 value);
 
 private:
     static Options *self;
@@ -104,6 +115,8 @@ private:
 
     QString m_portName;
     qint32 m_baudRate;
+
+    qint32 m_backlight;
 
     bool m_autoShutdown;
     qint32 m_shutdownHour;
