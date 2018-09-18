@@ -44,6 +44,7 @@ public:
     Q_ENUM(LinkStatus)
 
     enum SensorType {
+        UnknownSensor,
         WaterlevelSensor,
         UltrasonicSensor,
     };

@@ -42,12 +42,15 @@ endif ()
 
 add_definitions(-DIMAGES_PATH="${IMAGES_PATH}")
 
-add_library(studio STATIC ${STUDIO_SRC})
-target_link_libraries(studio Qt5::Core Qt5::Quick Qt5::SerialPort)
+add_library(libstudio STATIC ${STUDIO_SRC})
+target_link_libraries(libstudio Qt5::Core Qt5::Quick Qt5::SerialPort)
 
-add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} studio gui)
+add_executable(skynet-studio main.cpp)
+target_link_libraries(skynet-studio libstudio gui)
+
+add_executable(skynet-sensor main-sensor.cpp sensor.cpp)
+target_link_libraries(skynet-sensor libstudio gui)
 
 add_executable(unittest unittest.cpp)
 add_test(unittest unittest)
-target_link_libraries(unittest studio Qt5::Test)
+target_link_libraries(unittest libstudio Qt5::Test)

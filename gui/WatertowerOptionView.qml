@@ -135,8 +135,9 @@ Page {
                                 ComboBox {
                                     textRole: "name"
                                     model: ListModel {
-                                        ListElement { name: "Waterlevel"; value: Options.WaterlevelSensor }
-                                        ListElement { name: "Ultrasonic"; value: Options.UltrasonicSensor }
+                                        ListElement { name: qsTr("Unknown"); value: Options.UnknownSensor }
+                                        ListElement { name: qsTr("Waterlevel"); value: Options.WaterlevelSensor }
+                                        ListElement { name: qsTr("Ultrasonic"); value: Options.UltrasonicSensor }
                                     }
                                     currentIndex: sensorType
                                     width: 160
