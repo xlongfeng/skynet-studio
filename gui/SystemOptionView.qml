@@ -107,36 +107,78 @@ Page {
     Dialog {
         id: shutdownDialog
         modal: true
-        title: "Shutdown Time"
+        title: "Power Saving Time"
         x: parent.width / 2 - width / 2
         y: parent.height / 2 - height / 2
         standardButtons: Dialog.Ok | Dialog.Cancel
         GridLayout {
             columns: 2
             Text {
+                text: qsTr("From")
+                Layout.fillWidth: true
+                Layout.columnSpan: 2
+            }
+            Text {
                 text: qsTr("Hour")
                 Layout.preferredWidth: 120
             }
             SpinBox {
-                id: shutdownHour
+                id: powerSavingFromHour
                 from: 0
                 to: 23
-                value: Options.shutdownHour
+                value: Options.powerSavingFrom.getHours()
             }
             Text {
                 text: qsTr("Minute")
                 Layout.preferredWidth: 120
             }
             SpinBox {
-                id: shutdownMinute
+                id: powerSavingFromMinute
                 from: 0
                 to: 59
-                value: Options.shutdownMinute
+                value: Options.powerSavingFrom.getMinutes()
+            }
+            Rectangle {
+                color: "gray"
+                Layout.preferredHeight: 1
+                Layout.fillWidth: true
+                Layout.columnSpan: 2
+            }
+            Text {
+                text: qsTr("To")
+                Layout.fillWidth: true
+                Layout.columnSpan: 2
+            }
+            Text {
+                text: qsTr("Hour")
+                Layout.preferredWidth: 120
+            }
+            SpinBox {
+                id: powerSavingToHour
+                from: 0
+                to: 23
+                value: Options.powerSavingTo.getHours()
+            }
+            Text {
+                text: qsTr("Minute")
+                Layout.preferredWidth: 120
+            }
+            SpinBox {
+                id: powerSavingToMinute
+                from: 0
+                to: 59
+                value: Options.powerSavingTo.getMinutes()
             }
         }
         onAccepted: {
-            Options.shutdownHour = shutdownHour.value
-            Options.shutdownMinute = shutdownMinute.value
+            var from = Options.powerSavingFrom
+            var to = Options.powerSavingTo
+            from.setHours(powerSavingFromHour.value)
+            from.setMinutes(powerSavingFromMinute.value)
+            to.setHours(powerSavingToHour.value)
+            to.setMinutes(powerSavingToMinute.value)
+            Options.powerSavingFrom = from
+            Options.powerSavingTo = to
         }
     }
 
@@ -202,21 +244,30 @@ Page {
             Layout.preferredWidth: 160
         }
 
+        Rectangle {
+            color: "gray"
+            Layout.preferredHeight: 1
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+        }
+
         CheckBox {
             text: qsTr("Auto Shutdown")
             checked: Options.autoShutdown
             onClicked: Options.autoShutdown = checked
             Layout.columnSpan: 2
             Layout.alignment: Qt.AlignRight
+            Layout.preferredWidth: 160
         }
 
         Text {
-            text: qsTr("Shutdown Time")
+            text: qsTr("Power Saving Time")
         }
 
         TextField {
             enabled: Options.autoShutdown
-            text: "0%1".arg(Options.shutdownHour).slice(-2) + ":" + "0%1".arg(Options.shutdownMinute).slice(-2)
+            text: "from " + Options.powerSavingFrom.toLocaleTimeString(Qt.locale(), "hh:mm") +
+                  " to " + Options.powerSavingTo.toLocaleTimeString(Qt.locale(), "hh:mm")
             readOnly: true
             onPressAndHold: shutdownDialog.open()
             Layout.preferredWidth: 160

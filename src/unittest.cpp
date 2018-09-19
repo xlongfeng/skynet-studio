@@ -23,6 +23,7 @@
 
 #include "settings.h"
 #include "options.h"
+#include "daemon.h"
 
 class Unittest: public QObject
 {
@@ -99,6 +100,32 @@ private slots:
         opt->setBacklight(backlight);
         // QTest::qWait(2000);
         opt->setBacklight(backlightDefault);
+    }
+
+    void powerSavingTest()
+    {
+        Options *opt = Options::instance();
+        Daemon *daemon = Daemon::instance();
+
+        opt->setPowerSavingFrom(QDateTime(QDate(2000, 1, 1), QTime(22, 0)));
+        opt->setPowerSavingTo(QDateTime(QDate(2000, 1, 1), QTime(6, 0)));
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(0, 0))) == true);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(4, 0))) == true);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(6, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(8, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(14, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(22, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(23, 0))) == true);
+
+        opt->setPowerSavingFrom(QDateTime(QDate(2000, 1, 1), QTime(6, 0)));
+        opt->setPowerSavingTo(QDateTime(QDate(2000, 1, 1), QTime(22, 0)));
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(0, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(4, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(6, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(8, 0))) == true);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(14, 0))) == true);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(22, 0))) == false);
+        QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(23, 0))) == false);
     }
 };
 

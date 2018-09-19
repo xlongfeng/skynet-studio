@@ -21,6 +21,7 @@
 #include <QQmlApplicationEngine>
 
 #include "options.h"
+#include "daemon.h"
 #include "watertowermodel.h"
 
 static QObject *options_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -37,6 +38,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
+
+    Daemon::instance()->start();
 
     Q_INIT_RESOURCE(qml);
 

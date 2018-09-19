@@ -39,8 +39,8 @@ Options::Options(QObject *parent) : QObject(parent),
         setBrightness(m_backlight);
     }
     m_autoShutdown = settings->value("auto-shutdown", false).toBool();
-    m_shutdownHour = settings->value("shutdown-hour", 23).toInt();
-    m_shutdownMinute = settings->value("shutdown-minute", 0).toInt();
+    m_powerSavingFrom = settings->value("power-saving-from", "2000-01-01 23:00").toDateTime();
+    m_powerSavingTo = settings->value("power-saving-to", "2000-01-01 06:00").toDateTime();
 }
 
 Options *Options::instance()
@@ -170,20 +170,20 @@ void Options::setAutoShutdown(bool enabled)
     }
 }
 
-void Options::setShutdownHour(qint32 value)
+void Options::setPowerSavingFrom(QDateTime time)
 {
-    if (m_shutdownHour != value) {
-        m_shutdownHour = value;
-        settings->setValue("shutdown-hour", value);
-        emit shutdownHourChanged();
+    if (m_powerSavingFrom != time) {
+        m_powerSavingFrom = time;
+        settings->setValue("power-saving-from", time);
+        emit powerSavingFromChanged();
     }
 }
 
-void Options::setShutdownMinute(qint32 value)
+void Options::setPowerSavingTo(QDateTime time)
 {
-    if (m_shutdownMinute != value) {
-        m_shutdownMinute = value;
-        settings->setValue("shutdown-minute", value);
-        emit shutdownMinuteChanged();
+    if (m_powerSavingTo != time) {
+        m_powerSavingTo = time;
+        settings->setValue("power-saving-to", time);
+        emit powerSavingToChanged();
     }
 }

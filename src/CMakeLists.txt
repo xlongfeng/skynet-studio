@@ -25,6 +25,7 @@ set(STUDIO_SRC
     utility.c
     settings.cpp
     options.cpp
+    daemon.cpp
     watertower.cpp
     watertowermodel.cpp
     halfduplexlinker.cpp

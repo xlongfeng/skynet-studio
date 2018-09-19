@@ -21,6 +21,7 @@
 #define OPTIONS_H
 
 #include <QObject>
+#include <QDateTime>
 
 class Settings;
 
@@ -31,9 +32,10 @@ class Options : public QObject
     Q_PROPERTY(QString portName MEMBER m_portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(qint32 baudRate MEMBER m_baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
     Q_PROPERTY(qint32 backlight MEMBER m_backlight READ backlight WRITE setBacklight NOTIFY backlightChanged)
+
     Q_PROPERTY(bool autoShutdown MEMBER m_autoShutdown READ autoShutdown WRITE setAutoShutdown NOTIFY autoShutdownChanged)
-    Q_PROPERTY(qint32 shutdownHour MEMBER m_shutdownHour READ shutdownHour WRITE setShutdownHour NOTIFY shutdownHourChanged)
-    Q_PROPERTY(qint32 shutdownMinute MEMBER m_shutdownMinute READ shutdownMinute WRITE setShutdownMinute NOTIFY shutdownMinuteChanged)
+    Q_PROPERTY(QDateTime powerSavingFrom MEMBER m_powerSavingFrom READ powerSavingFrom WRITE setPowerSavingFrom NOTIFY powerSavingFromChanged)
+    Q_PROPERTY(QDateTime powerSavingTo MEMBER m_powerSavingTo READ powerSavingTo WRITE setPowerSavingTo NOTIFY powerSavingToChanged)
 
 public:
     enum LinkStatus {
@@ -82,25 +84,25 @@ public:
     }
     void setAutoShutdown(bool enabled);
 
-    qint32 shutdownHour() const
+    QDateTime powerSavingFrom() const
     {
-        return m_shutdownHour;
+        return m_powerSavingFrom;
     }
-    void setShutdownHour(qint32 value);
+    void setPowerSavingFrom(QDateTime time);
 
-    qint32 shutdownMinute() const
+    QDateTime powerSavingTo() const
     {
-        return m_shutdownMinute;
+        return m_powerSavingTo;
     }
-    void setShutdownMinute(qint32 value);
+    void setPowerSavingTo(QDateTime time);
 
 signals:
     void portNameChanged();
     void baudRateChanged();
     void backlightChanged();
     void autoShutdownChanged();
-    void shutdownHourChanged();
-    void shutdownMinuteChanged();
+    void powerSavingFromChanged();
+    void powerSavingToChanged();
 
 public slots:
 
@@ -119,8 +121,8 @@ private:
     qint32 m_backlight;
 
     bool m_autoShutdown;
-    qint32 m_shutdownHour;
-    qint32 m_shutdownMinute;
+    QDateTime m_powerSavingFrom;
+    QDateTime m_powerSavingTo;
 };
 
 #endif // OPTIONS_H
