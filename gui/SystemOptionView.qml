@@ -266,8 +266,8 @@ Page {
 
         TextField {
             enabled: Options.autoShutdown
-            text: "from " + Options.powerSavingFrom.toLocaleTimeString(Qt.locale(), "hh:mm") +
-                  " to " + Options.powerSavingTo.toLocaleTimeString(Qt.locale(), "hh:mm")
+            text: Options.powerSavingFrom.toLocaleTimeString(Qt.locale(), "hh:mm") + " ~ " +
+                  Options.powerSavingTo.toLocaleTimeString(Qt.locale(), "hh:mm")
             readOnly: true
             onPressAndHold: shutdownDialog.open()
             Layout.preferredWidth: 160

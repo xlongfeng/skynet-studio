@@ -45,7 +45,7 @@ Watertower::Watertower(int index, QObject *parent) :
     settings->beginGroup("Watertower");
     settings->beginGroup(QString::number(index));
     m_onOff = settings->value("on-off", false).toBool();
-    m_radius = settings->value("radius", 200).toInt();
+    m_radius = settings->value("radius", 150).toInt();
     m_bucketHeight = settings->value("bucket-height", 200).toInt();
     m_bucketQuantity = settings->value("bucket-quantity", 1).toInt();
     m_sensorType = settings->value("sensor-type", Options::WaterlevelSensor).value<Options::SensorType>();
@@ -91,17 +91,17 @@ const QString Watertower::name() const
 {
     switch(index) {
     case 0:
-        return tr("Ground floor");
+        return tr("1");
     case 1:
-        return tr("Third floor");
+        return tr("2");
     case 2:
-        return tr("Seaside");
+        return tr("3");
     case 3:
-        return tr("Well");
+        return tr("4");
     case 4:
-        return tr("Boat");
+        return tr("5");
     case 5:
-        return tr("Roof");
+        return tr("6");
     default:
         return QString::number(index);
     }
@@ -109,7 +109,7 @@ const QString Watertower::name() const
 
 const QString Watertower::icon() const
 {
-    return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index);
+    return QString(QString("file:") + IMAGES_PATH + "/watertower-%1.png").arg(index + 1);
 }
 
 void Watertower::setOnOff(bool on)
