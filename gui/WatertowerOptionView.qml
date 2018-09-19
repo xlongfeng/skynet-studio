@@ -139,9 +139,18 @@ Page {
                                         ListElement { name: qsTr("Waterlevel"); value: Options.WaterlevelSensor }
                                         ListElement { name: qsTr("Ultrasonic"); value: Options.UltrasonicSensor }
                                     }
-                                    currentIndex: sensorType
                                     width: 160
-                                    onActivated: option.setData(option.index(indexRow, 0), index, WatertowerModel.SensorTypeRole)
+                                    onActivated: option.setData(option.index(indexRow, 0), model.get(index).value, WatertowerModel.SensorTypeRole)
+                                    Component.onCompleted: {
+                                        currentIndex = -1;
+                                        var count = model.count
+                                        for (var i = 0; i < count; i++) {
+                                            if (model.get(i).value === sensorType) {
+                                                currentIndex = i;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
 
                                 Label {

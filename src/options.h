@@ -36,6 +36,7 @@ class Options : public QObject
     Q_PROPERTY(bool autoShutdown MEMBER m_autoShutdown READ autoShutdown WRITE setAutoShutdown NOTIFY autoShutdownChanged)
     Q_PROPERTY(QDateTime powerSavingFrom MEMBER m_powerSavingFrom READ powerSavingFrom WRITE setPowerSavingFrom NOTIFY powerSavingFromChanged)
     Q_PROPERTY(QDateTime powerSavingTo MEMBER m_powerSavingTo READ powerSavingTo WRITE setPowerSavingTo NOTIFY powerSavingToChanged)
+    Q_PROPERTY(qint32 idleTime MEMBER m_idleTime READ idleTime WRITE setIdleTime NOTIFY idleTimeChanged)
 
 public:
     enum LinkStatus {
@@ -97,6 +98,12 @@ public:
     }
     void setPowerSavingTo(QDateTime time);
 
+    qint32 idleTime()
+    {
+        return m_idleTime;
+    }
+    void setIdleTime(qint32 value);
+
 signals:
     void portNameChanged();
     void baudRateChanged();
@@ -104,6 +111,7 @@ signals:
     void autoShutdownChanged();
     void powerSavingFromChanged();
     void powerSavingToChanged();
+    void idleTimeChanged();
 
 public slots:
 
@@ -124,6 +132,7 @@ private:
     bool m_autoShutdown;
     QDateTime m_powerSavingFrom;
     QDateTime m_powerSavingTo;
+    qint32 m_idleTime;
 };
 
 #endif // OPTIONS_H

@@ -277,10 +277,30 @@ Page {
             text: qsTr("Idle Time")
         }
 
-        SpinBox {
-            from: 5
-            to: 60
+        ComboBox {
+            textRole: "name"
+            model: ListModel {
+                ListElement { name: "5 min"; value: 5}
+                ListElement { name: "10 min"; value: 10}
+                ListElement { name: "15 min"; value: 15}
+                ListElement { name: "20 min"; value: 20}
+                ListElement { name: "30 min"; value: 30}
+            }
             enabled: Options.autoShutdown
+            onActivated: {
+                Options.idleTime = model.get(index).value
+            }
+            Component.onCompleted: {
+                currentIndex = -1;
+                var count = model.count
+                for (var i = 0; i < count; i++) {
+                    if (model.get(i).value === Options.idleTime) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+            }
+
             Layout.preferredWidth: 160
         }
     }

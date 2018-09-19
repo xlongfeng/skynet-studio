@@ -30,6 +30,7 @@ Daemon *Daemon::self = nullptr;
 Daemon::Daemon(QObject *parent) :
     QObject(parent)
 {
+    options = Options::instance();
     QTimer *tickTimer = new QTimer(this);
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(onTick()));
     tickTimer->start(1000);
@@ -52,8 +53,8 @@ void Daemon::start()
 
 bool Daemon::isPowerSaving(QDateTime current)
 {
-    QDateTime from = Options::instance()->powerSavingFrom();
-    QDateTime to = Options::instance()->powerSavingTo();
+    QDateTime from = options->powerSavingFrom();
+    QDateTime to = options->powerSavingTo();
 
     if (to < from) {
         if (current > from || current < to)
@@ -73,8 +74,8 @@ void Daemon::resetIdleTime()
 
 void Daemon::onTick()
 {
-    if (isPowerSaving()) {
-        if (idleTime.elapsed() > 10 * 1000) {
+    if (options->autoShutdown() && isPowerSaving()) {
+        if (idleTime.elapsed() > options->idleTime() * 60 * 1000) {
 #ifdef __arm__
             QProcess::execute("poweroff");
 #else

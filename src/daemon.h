@@ -23,6 +23,8 @@
 #include <QObject>
 #include <QDateTime>
 
+class Options;
+
 class Daemon : public QObject
 {
     Q_OBJECT
@@ -46,6 +48,7 @@ private:
 
 private:
     static Daemon *self;
+    Options *options;
     QTime idleTime;
 };
 

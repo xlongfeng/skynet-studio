@@ -41,6 +41,7 @@ Options::Options(QObject *parent) : QObject(parent),
     m_autoShutdown = settings->value("auto-shutdown", false).toBool();
     m_powerSavingFrom = settings->value("power-saving-from", "2000-01-01 23:00").toDateTime();
     m_powerSavingTo = settings->value("power-saving-to", "2000-01-01 06:00").toDateTime();
+    m_idleTime = settings->value("idle-time", 15).toInt();
 }
 
 Options *Options::instance()
@@ -185,5 +186,14 @@ void Options::setPowerSavingTo(QDateTime time)
         m_powerSavingTo = time;
         settings->setValue("power-saving-to", time);
         emit powerSavingToChanged();
+    }
+}
+
+void Options::setIdleTime(qint32 value)
+{
+    if (m_idleTime != value) {
+        m_idleTime = value;
+        settings->setValue("idle-time", value);
+        emit idleTimeChanged();
     }
 }
