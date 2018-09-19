@@ -229,9 +229,10 @@ Page {
         }
 
         Slider {
-            from: 0
+            from: Options.backlightMin()
             to: Options.backlightMax()
             value: Options.backlight
+            stepSize: 1
             onMoved: Options.backlight = value
             Layout.preferredWidth: 160
         }

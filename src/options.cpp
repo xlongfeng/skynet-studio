@@ -141,10 +141,10 @@ qint32 Options::backlightDefault()
 void Options::setBacklight(qint32 value)
 {
     if (m_backlight != value) {
-        setBrightness(m_backlight);
         m_backlight = value;
         settings->setValue("backlight", value);
         emit backlightChanged();
+        setBrightness(m_backlight);
     }
 }
 

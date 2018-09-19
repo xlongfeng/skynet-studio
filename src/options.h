@@ -72,6 +72,10 @@ public:
     }
     void setBaudRate(qint32 rate);
 
+    Q_INVOKABLE qint32 backlightMin()
+    {
+        return 1;
+    }
     Q_INVOKABLE qint32 backlightMax();
     Q_INVOKABLE qint32 backlightDefault();
     qint32 backlight()
