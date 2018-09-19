@@ -121,22 +121,20 @@ void Sensor::response(int id, const QString &cmd , quint16 arg)
     } else if (cmd == "Query") {
         switch (m_sensorType) {
         case Options::WaterlevelSensor:
+            m_queryResult = arg;
             break;
         case Options::UltrasonicSensor:
-            arg = arg * AcousticVelocity / 10000 / 2;
+            m_queryResult = arg * AcousticVelocity / 10000 / 2;
             break;
         default:
             return;
         }
+        emit queryResultChanged();
     } else if (cmd == "SetID" || cmd == "GetID") {
-        if (m_identity != arg) {
-            m_identity = arg;
-            emit identityChanged();
-        }
+        m_identity = arg;
+        emit identityChanged();
     } else if (cmd == "SetType" || cmd == "GetType") {
-        if (m_sensorType != static_cast<Options::SensorType>(arg)) {
-            m_sensorType = static_cast<Options::SensorType>(arg);
-            emit sensorTypeChanged();
-        }
+        m_sensorType = static_cast<Options::SensorType>(arg);
+        emit sensorTypeChanged();
     }
 }

@@ -34,7 +34,7 @@ class Sensor : public QObject
 
     Q_PROPERTY(int identity MEMBER m_identity READ identity WRITE setIdentity NOTIFY identityChanged)
     Q_PROPERTY(Options::SensorType sensorType MEMBER m_sensorType READ sensorType WRITE setSensorType NOTIFY sensorTypeChanged)
-
+    Q_PROPERTY(quint32 queryResult MEMBER m_queryResult READ queryResult NOTIFY queryResultChanged)
     Q_PROPERTY(quint32 requestTimes MEMBER m_requestTimes READ requestTimes NOTIFY requestTimesChanged)
     Q_PROPERTY(quint32 responseTimeoutTimes MEMBER m_responseTimeoutTimes READ responseTimeoutTimes NOTIFY responseTimeoutTimesChanged)
     Q_PROPERTY(quint32 responseLatency MEMBER m_responseLatency READ responseLatency NOTIFY responseLatencyChanged)
@@ -56,6 +56,11 @@ public:
     }
     void setSensorType(Options::SensorType value);
     Q_INVOKABLE void getSensorType();
+
+    quint32 queryResult()
+    {
+        return m_queryResult;
+    }
 
     Q_INVOKABLE void queryDevice();
 
@@ -80,6 +85,7 @@ public:
 signals:
     void identityChanged();
     void sensorTypeChanged();
+    void queryResultChanged();
     void requestTimesChanged();
     void responseTimeoutTimesChanged();
     void responseLatencyChanged();
@@ -99,6 +105,7 @@ private:
 
     int m_identity = 0;
     Options::SensorType m_sensorType = Options::UnknownSensor;
+    quint32 m_queryResult = 0;
 
     QTimer *testTimer;
     QTimer *testTimeroutTimer;

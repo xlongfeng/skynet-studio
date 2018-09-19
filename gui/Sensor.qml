@@ -74,6 +74,7 @@ ApplicationWindow {
             id: deviceID
             from: 0x00
             to: 0x3f
+            value: Sensor.identity
         }
 
         Button {
@@ -98,7 +99,7 @@ ApplicationWindow {
                 ListElement { name: qsTr("Waterlevel"); value: Options.WaterlevelSensor }
                 ListElement { name: qsTr("Ultrasonic"); value: Options.UltrasonicSensor }
             }
-            currentIndex: 0
+            currentIndex: Sensor.sensorType
         }
 
         Button {
@@ -114,6 +115,7 @@ ApplicationWindow {
         TextField {
             placeholderText: qsTr("Sensor Measure Result")
             readOnly: true
+            text: Sensor.queryResult
             Layout.fillWidth: true
             Layout.columnSpan: 2
         }
