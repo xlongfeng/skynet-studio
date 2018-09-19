@@ -17,6 +17,14 @@
  *
  */
 
+#ifdef __arm__
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/types.h>
+#include <linux/watchdog.h>
+#endif
+
 #include <QCoreApplication>
 #include <QProcess>
 #include <QTimer>
@@ -35,6 +43,16 @@ Daemon::Daemon(QObject *parent) :
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(onTick()));
     tickTimer->start(1000);
 
+#ifdef __arm__
+    wdg = open("/dev/watchdog", O_WRONLY);
+
+    if (wdg == -1) {
+        qDebug() << "Watchdog device not enabled";
+    }
+
+    int flags = WDIOS_ENABLECARD;
+    ioctl(wdg, WDIOC_SETOPTIONS, &flags);
+#endif
 }
 
 Daemon *Daemon::instance()
@@ -74,6 +92,7 @@ void Daemon::resetIdleTime()
 
 void Daemon::onTick()
 {
+    keepAlive();
     if (options->autoShutdown() && isPowerSaving()) {
         if (idleTime.elapsed() > options->idleTime() * 60 * 1000) {
 #ifdef __arm__
@@ -84,4 +103,12 @@ void Daemon::onTick()
 #endif
         }
     }
+}
+
+void Daemon::keepAlive()
+{
+#ifdef __arm__
+    int dummy;
+    ioctl(wdg, WDIOC_KEEPALIVE, &dummy);
+#endif
 }

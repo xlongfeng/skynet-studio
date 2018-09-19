@@ -45,11 +45,16 @@ private slots:
 private:
     explicit Daemon(QObject *parent = nullptr);
     Q_DISABLE_COPY(Daemon)
+    void keepAlive();
 
 private:
     static Daemon *self;
     Options *options;
     QTime idleTime;
+
+#ifdef __arm__
+    int wdg = -1;
+#endif
 };
 
 #endif // DAEMON_H
