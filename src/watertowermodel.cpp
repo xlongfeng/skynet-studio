@@ -41,6 +41,16 @@ WatertowerModel::WatertowerModel(QObject *parent) :
             this->dataChanged(index(row, 0), index(row, 0), { PercentRole });
         });
         connects.append(conn);
+
+        conn = connect(watertower, &Watertower::requestTimesChanged, [=] () {
+            this->dataChanged(index(row, 0), index(row, 0), { RequestTimesRole });
+        });
+        connects.append(conn);
+
+        conn = connect(watertower, &Watertower::timeoutTimesChanged, [=] () {
+            this->dataChanged(index(row, 0), index(row, 0), { TimeoutTimesRole });
+        });
+        connects.append(conn);
     }
 }
 
@@ -83,6 +93,10 @@ QVariant WatertowerModel::data(const QModelIndex &index, int role) const
         return QString::number(Watertower::instance(row)->tunnage(), 'f', 1);
     case PercentRole:
         return Watertower::instance(row)->percent();
+    case RequestTimesRole:
+        return Watertower::instance(row)->requestTimes();
+    case TimeoutTimesRole:
+        return Watertower::instance(row)->timeoutTimes();
     case OnOffRole:
         return Watertower::instance(row)->onOff();
     case RadiusRole:
@@ -140,6 +154,8 @@ QHash<int, QByteArray> WatertowerModel::roleNames() const
         { LinkStatusRole, "linkStatus" },
         { TunnageRole, "tunnage" },
         { PercentRole, "percent" },
+        { RequestTimesRole, "requestTimes" },
+        { TimeoutTimesRole, "timeoutTimes" },
         { IdentityRole, "identity" },
         { OnOffRole, "onOff" },
         { RadiusRole, "radius" },

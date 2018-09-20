@@ -40,10 +40,18 @@ public:
 
 signals:
     void response(int id, const QString &cmd , quint16 arg);
+    void timeout(int id, const QString &cmd , quint16 arg);
 
     void readyToSend();
     void responseReceived();
     void queueEmpty();
+
+private:
+    struct Datagram {
+        int id;
+        QString cmd;
+        quint16 arg;
+    };
 
 private slots:
     void onPortSettingsChanged();
@@ -61,10 +69,10 @@ private:
     static HalfDuplexLinker *self;
     Options *options;
     CmdBuf cmdBuf;
-    QQueue<QString> packageQueue;
+    QQueue<Datagram> datagramQueue;
     QSerialPort *port;
     QTimer *responseTimeoutTimer;
-    QString requestString;
+    Datagram datagramRequested;
     QStateMachine machine;
 };
 

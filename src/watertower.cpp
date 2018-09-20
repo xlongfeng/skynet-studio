@@ -28,8 +28,6 @@
 namespace {
 const int IdentityBase = 0x10;
 const int WatertowerQuantity = 6;
-const int QueryInterval = 3000;
-const int QeuryTimeout = QueryInterval * 3;
 const int AcousticVelocity = 340;
 }
 
@@ -42,6 +40,9 @@ Watertower::Watertower(int index, QObject *parent) :
 {
     m_identity = IdentityBase + index;
 
+    options = Options::instance();
+    connect(options, SIGNAL(pollIntervalChanged()), this, SLOT(onQueryTimeChanged()));
+
     settings->beginGroup("Watertower");
     settings->beginGroup(QString::number(index));
     m_onOff = settings->value("on-off", false).toBool();
@@ -53,16 +54,12 @@ Watertower::Watertower(int index, QObject *parent) :
 
     linker = HalfDuplexLinker::instance();
     connect(linker, SIGNAL(response(int,QString,quint16)), this, SLOT(response(int,QString,quint16)));
+    connect(linker, SIGNAL(timeout(int,QString,quint16)), this, SLOT(responseTimeout(int,QString,quint16)));
 
     queryTimer = new QTimer(this);
     connect(queryTimer, SIGNAL(timeout()), this, SLOT(query()));
-    queryTimeoutTimer =  new QTimer(this);
-    connect(queryTimeoutTimer, SIGNAL(timeout()), this, SLOT(queryTimeout()));
 
-    if (m_onOff) {
-        queryTimer->start(QueryInterval);
-        queryTimeoutTimer->start(QeuryTimeout);
-    }
+    onQueryTimeChanged();
 }
 
 Watertower *Watertower::instance(int index)
@@ -117,13 +114,7 @@ void Watertower::setOnOff(bool on)
     m_onOff = on;
     settings->setValue("on-off", on);
     emit linkStatusChanged();
-    if (m_onOff) {
-        queryTimer->start(QueryInterval);
-        queryTimeoutTimer->start(QeuryTimeout);
-    } else {
-        queryTimeoutTimer->stop();
-        queryTimer->stop();
-    }
+    onQueryTimeChanged();
 }
 
 void Watertower::setRadius(int radius)
@@ -161,12 +152,20 @@ void Watertower::setSensorQuantity(int quantity)
 void Watertower::query()
 {
     linker->request(m_identity, "Query", 0);
+    ++m_requestTimes;
+    emit requestTimesChanged();
 }
 
-void Watertower::queryTimeout()
+void Watertower::onQueryTimeChanged()
 {
-    m_linkStatus = Options::Detached;
-    emit linkStatusChanged();
+    queryIntervalSec = options->pollInterval() * 1000;
+    queryTimeoutTimes = 0;
+
+    if (m_onOff) {
+        queryTimer->start(queryIntervalSec);
+    } else {
+        queryTimer->stop();
+    }
 }
 
 void Watertower::response(int id, const QString &cmd , quint16 arg)
@@ -174,7 +173,7 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
     if (id != m_identity)
         return;
 
-    queryTimeoutTimer->start(QeuryTimeout);
+    queryTimeoutTimes = 0;
 
     if (m_linkStatus != Options::Attached) {
         m_linkStatus = Options::Attached;
@@ -203,4 +202,20 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
         emit percentChanged();
         // qDebug() << "Identity" << m_identity << waterLevelCM << m_tunnage << m_percent;
     }
+}
+
+void Watertower::responseTimeout(int id, const QString &cmd , quint16 arg)
+{
+    if (id != m_identity)
+        return;
+
+    ++m_timeoutTimes;
+    emit timeoutTimesChanged();
+
+    if (++queryTimeoutTimes > 2) {
+        queryTimeoutTimes = 2;
+        m_linkStatus = Options::Detached;
+        emit linkStatusChanged();
+    }
+    // qDebug() << "Response timeout" << id << cmd << arg << queryTimeoutTimes;
 }

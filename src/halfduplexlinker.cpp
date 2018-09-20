@@ -79,9 +79,7 @@ HalfDuplexLinker *HalfDuplexLinker::instance()
 
 void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg)
 {
-    CmdBuf cmdBuf;
-    cmdBufBuild(&cmdBuf, id, cmd.toLatin1().data(), arg);
-    packageQueue.enqueue(QString(cmdBuf.buf));
+    datagramQueue.enqueue({id, cmd, arg});
     emit readyToSend();
 }
 
@@ -127,10 +125,12 @@ void HalfDuplexLinker::onReadyRead()
 
 void HalfDuplexLinker::onRequestStateEntered()
 {
-    if(!packageQueue.isEmpty()) {
-        QString request = packageQueue.dequeue();
-        requestString = request;
-        port->write(request.toLatin1());
+    if(!datagramQueue.isEmpty()) {
+        Datagram request = datagramQueue.dequeue();
+        datagramRequested = request;
+        CmdBuf cmdBuf;
+        cmdBufBuild(&cmdBuf, request.id, request.cmd.toLatin1().data(), request.arg);
+        port->write(cmdBuf.buf);
         responseTimeoutTimer->start(ResponseTimeout);
     } else {
         emit queueEmpty();
@@ -144,5 +144,5 @@ void HalfDuplexLinker::onRequestStateExited()
 
 void HalfDuplexLinker::onRequestTimeout()
 {
-    qDebug() << QTime::currentTime().toString() << "Request timeout" << requestString;
+    emit timeout(datagramRequested.id, datagramRequested.cmd, datagramRequested.arg);
 }

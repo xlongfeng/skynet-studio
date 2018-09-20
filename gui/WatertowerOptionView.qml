@@ -71,6 +71,8 @@ Page {
                                 linkStatus: model.linkStatus
                                 tunnage: model.tunnage
                                 percent: model.percent
+                                requestTimes: model.requestTimes
+                                timeoutTimes: model.timeoutTimes
                             }
 
                             Grid {

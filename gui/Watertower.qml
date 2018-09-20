@@ -31,6 +31,8 @@ Item {
     property var linkStatus
     property alias tunnage: tunnageText.text
     property alias percent: progressBar.value
+    property alias timeoutTimes: timeoutTimesText.text
+    property alias requestTimes: requestTimesText.text
 
     Image {
         id: image
@@ -102,6 +104,34 @@ Item {
                                     progressBar.value / progressBar.to,
                                     1.0, 1.0) }
                 }
+            }
+        }
+    }
+
+    Rectangle {
+        anchors.bottom: image.bottom
+        anchors.left: image.left
+        anchors.right: image.right
+        height: 24
+        color: Qt.rgba(1.0, 1.0, 1.0, 0.5)
+        visible: Options.debug === true
+
+        Row {
+            anchors.centerIn: parent
+
+            Text {
+                id: timeoutTimesText
+                color: "red"
+            }
+
+            Text {
+                text: " / "
+                color: "black"
+            }
+
+            Text {
+                id: requestTimesText
+                color: "blue"
             }
         }
     }

@@ -35,6 +35,8 @@ public:
         LinkStatusRole,
         TunnageRole,
         PercentRole,
+        RequestTimesRole,
+        TimeoutTimesRole,
         OnOffRole,
         RadiusRole,
         BucketHeightRole,

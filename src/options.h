@@ -31,12 +31,15 @@ class Options : public QObject
 
     Q_PROPERTY(QString portName MEMBER m_portName READ portName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(qint32 baudRate MEMBER m_baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
+    Q_PROPERTY(qint32 pollInterval MEMBER m_pollInterval READ pollInterval WRITE setPollInterval NOTIFY pollIntervalChanged)
     Q_PROPERTY(qint32 backlight MEMBER m_backlight READ backlight WRITE setBacklight NOTIFY backlightChanged)
 
     Q_PROPERTY(bool autoShutdown MEMBER m_autoShutdown READ autoShutdown WRITE setAutoShutdown NOTIFY autoShutdownChanged)
     Q_PROPERTY(QDateTime powerSavingFrom MEMBER m_powerSavingFrom READ powerSavingFrom WRITE setPowerSavingFrom NOTIFY powerSavingFromChanged)
     Q_PROPERTY(QDateTime powerSavingTo MEMBER m_powerSavingTo READ powerSavingTo WRITE setPowerSavingTo NOTIFY powerSavingToChanged)
     Q_PROPERTY(qint32 idleTime MEMBER m_idleTime READ idleTime WRITE setIdleTime NOTIFY idleTimeChanged)
+
+    Q_PROPERTY(bool debug MEMBER m_debug READ debug WRITE setDebug NOTIFY debugChanged)
 
 public:
     enum LinkStatus {
@@ -72,13 +75,20 @@ public:
     }
     void setBaudRate(qint32 rate);
 
-    Q_INVOKABLE qint32 backlightMin()
+    qint32 pollInterval() const
+    {
+        return m_pollInterval;
+    }
+
+    void setPollInterval(qint32 value);
+
+    Q_INVOKABLE qint32 backlightMin() const
     {
         return 1;
     }
     Q_INVOKABLE qint32 backlightMax();
     Q_INVOKABLE qint32 backlightDefault();
-    qint32 backlight()
+    qint32 backlight() const
     {
         return m_backlight;
     }
@@ -102,20 +112,29 @@ public:
     }
     void setPowerSavingTo(QDateTime time);
 
-    qint32 idleTime()
+    qint32 idleTime() const
     {
         return m_idleTime;
     }
     void setIdleTime(qint32 value);
 
+    bool debug() const
+    {
+        return m_debug;
+    }
+
+    void setDebug(bool on);
+
 signals:
     void portNameChanged();
     void baudRateChanged();
+    void pollIntervalChanged();
     void backlightChanged();
     void autoShutdownChanged();
     void powerSavingFromChanged();
     void powerSavingToChanged();
     void idleTimeChanged();
+    void debugChanged();
 
 public slots:
 
@@ -130,13 +149,15 @@ private:
 
     QString m_portName;
     qint32 m_baudRate;
-
+    qint32 m_pollInterval;
     qint32 m_backlight;
 
     bool m_autoShutdown;
     QDateTime m_powerSavingFrom;
     QDateTime m_powerSavingTo;
     qint32 m_idleTime;
+
+    bool m_debug;
 };
 
 #endif // OPTIONS_H

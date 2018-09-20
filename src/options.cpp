@@ -32,6 +32,7 @@ Options::Options(QObject *parent) : QObject(parent),
 {
     m_portName = settings->value("port-name", "COM1").toString();
     m_baudRate = settings->value("baud-rate", 38400).toInt();
+    m_pollInterval = settings->value("poll-interval", 3).toInt();
     m_backlight = settings->value("backlight", -1).toInt();
     if (m_backlight == -1) {
         m_backlight = backlightDefault();
@@ -42,6 +43,7 @@ Options::Options(QObject *parent) : QObject(parent),
     m_powerSavingFrom = settings->value("power-saving-from", "2000-01-01 23:00").toDateTime();
     m_powerSavingTo = settings->value("power-saving-to", "2000-01-01 06:00").toDateTime();
     m_idleTime = settings->value("idle-time", 15).toInt();
+    m_debug = settings->value("debug", false).toBool();
 }
 
 Options *Options::instance()
@@ -103,6 +105,15 @@ void Options::setBaudRate(qint32 rate)
         m_baudRate = rate;
         settings->setValue("baud-rate", rate);
         emit baudRateChanged();
+    }
+}
+
+void Options::setPollInterval(qint32 value)
+{
+    if (m_pollInterval != value) {
+        m_pollInterval = value;
+        settings->setValue("poll-interval", value);
+        emit pollIntervalChanged();
     }
 }
 
@@ -195,5 +206,14 @@ void Options::setIdleTime(qint32 value)
         m_idleTime = value;
         settings->setValue("idle-time", value);
         emit idleTimeChanged();
+    }
+}
+
+void Options::setDebug(bool on)
+{
+    if (m_debug != on) {
+        m_debug = on;
+        settings->setValue("debug", on);
+        emit debugChanged();
     }
 }

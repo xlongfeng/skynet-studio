@@ -36,8 +36,10 @@ class Watertower : public QObject
     Q_PROPERTY(QString icon READ icon)
     Q_PROPERTY(int identity MEMBER m_identity READ identity)
     Q_PROPERTY(Options::LinkStatus linkStatus MEMBER m_linkStatus READ linkStatus NOTIFY linkStatusChanged)
-    Q_PROPERTY(double tunnage READ tunnage NOTIFY tunnageChanged)
-    Q_PROPERTY(int percent READ percent NOTIFY percentChanged)
+    Q_PROPERTY(double tunnage MEMBER m_tunnage READ tunnage NOTIFY tunnageChanged)
+    Q_PROPERTY(int percent MEMBER m_percent READ percent NOTIFY percentChanged)
+    Q_PROPERTY(int requestTimes MEMBER m_requestTimes READ requestTimes NOTIFY requestTimesChanged)
+    Q_PROPERTY(int timeoutTimes MEMBER m_timeoutTimes READ timeoutTimes NOTIFY timeoutTimesChanged)
 
     Q_PROPERTY(bool onOff MEMBER m_onOff READ onOff WRITE setOnOff)
     Q_PROPERTY(int radius MEMBER m_radius READ radius WRITE setRadius)
@@ -75,6 +77,16 @@ public:
     int percent() const
     {
         return m_percent;
+    }
+
+    int requestTimes() const
+    {
+        return m_requestTimes;
+    }
+
+    int timeoutTimes() const
+    {
+        return m_timeoutTimes;
     }
 
     bool onOff() const
@@ -123,13 +135,16 @@ signals:
     void linkStatusChanged();
     void tunnageChanged();
     void percentChanged();
+    void requestTimesChanged();
+    void timeoutTimesChanged();
 
 public slots:
 
 private slots:
     void query();
-    void queryTimeout();
+    void onQueryTimeChanged();
     void response(int id, const QString &cmd , quint16 arg);
+    void responseTimeout(int id, const QString &cmd , quint16 arg);
 
 private:
     Watertower(int index, QObject *parent = nullptr);
@@ -142,8 +157,14 @@ private:
     int m_identity;
 
     Settings *settings;
+    Options *options;
 
     Options::LinkStatus m_linkStatus = Options::Detached;
+
+    double m_tunnage = 0.0;
+    int m_percent = 0;
+    int m_requestTimes = 0;
+    int m_timeoutTimes = 0;
 
     bool m_onOff;
     int m_radius;
@@ -152,12 +173,10 @@ private:
     Options::SensorType m_sensorType;
     int m_sensorQuantity;
 
-    double m_tunnage = 0.0;
-    int m_percent = 0;
-
     HalfDuplexLinker *linker;
     QTimer *queryTimer;
-    QTimer *queryTimeoutTimer;
+    qint32 queryIntervalSec;
+    qint32 queryTimeoutTimes = 0;
 };
 
 #endif // WATERTOWER_H

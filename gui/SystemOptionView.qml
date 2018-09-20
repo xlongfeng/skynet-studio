@@ -222,6 +222,18 @@ Page {
         }
 
         Text {
+            text: qsTr("Polling Interval")
+        }
+
+        SpinBox {
+            from: 1
+            to: 15
+            value: Options.pollInterval
+            onValueModified: Options.pollInterval = value
+            Layout.preferredWidth: 160
+        }
+
+        Text {
             text: qsTr("Brightness")
         }
 
@@ -299,6 +311,21 @@ Page {
             }
 
             Layout.preferredWidth: 160
+        }
+
+        Rectangle {
+            color: "gray"
+            Layout.preferredHeight: 1
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+        }
+
+        CheckBox {
+            text: qsTr("Debug")
+            checked: Options.debug
+            onClicked: Options.debug = checked
+            Layout.columnSpan: 2
+            Layout.alignment: Qt.AlignRight
         }
     }
 }
