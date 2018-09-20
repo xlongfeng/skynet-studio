@@ -51,6 +51,7 @@ private slots:
 
     void onRequestStateEntered();
     void onRequestStateExited();
+    void onRequestTimeout();
 
 private:
     explicit HalfDuplexLinker(QObject *parent = nullptr);
@@ -63,6 +64,7 @@ private:
     QQueue<QString> packageQueue;
     QSerialPort *port;
     QTimer *responseTimeoutTimer;
+    QString requestString;
     QStateMachine machine;
 };
 

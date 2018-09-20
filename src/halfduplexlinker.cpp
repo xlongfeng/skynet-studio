@@ -57,6 +57,7 @@ HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     requestState->addTransition(this, SIGNAL(queueEmpty()), idleState);
     responseTimeoutTimer = new QTimer(this);
     responseTimeoutTimer->setSingleShot(true);
+    connect(responseTimeoutTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
     requestState->addTransition(responseTimeoutTimer, SIGNAL(timeout()), requestState);
     requestState->addTransition(this, SIGNAL(responseReceived()), requestState);
     connect(requestState, SIGNAL(entered()), this, SLOT(onRequestStateEntered()));
@@ -128,13 +129,20 @@ void HalfDuplexLinker::onRequestStateEntered()
 {
     if(!packageQueue.isEmpty()) {
         QString request = packageQueue.dequeue();
+        requestString = request;
         port->write(request.toLatin1());
         responseTimeoutTimer->start(ResponseTimeout);
     } else {
         emit queueEmpty();
     }
 }
+
 void HalfDuplexLinker::onRequestStateExited()
 {
     responseTimeoutTimer->stop();
+}
+
+void HalfDuplexLinker::onRequestTimeout()
+{
+    qDebug() << QTime::currentTime().toString() << "Request timeout" << requestString;
 }
