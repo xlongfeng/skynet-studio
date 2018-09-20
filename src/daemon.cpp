@@ -39,6 +39,11 @@ Daemon::Daemon(QObject *parent) :
     QObject(parent)
 {
     options = Options::instance();
+    connect(options, SIGNAL(autoShutdownChanged()), this, SLOT(resetIdleTime()));
+    connect(options, SIGNAL(powerSavingFromChanged()), this, SLOT(resetIdleTime()));
+    connect(options, SIGNAL(powerSavingToChanged()), this, SLOT(resetIdleTime()));
+    connect(options, SIGNAL(idleTimeChanged()), this, SLOT(resetIdleTime()));
+
     QTimer *tickTimer = new QTimer(this);
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(onTick()));
     tickTimer->start(1000);
