@@ -258,7 +258,6 @@ Page {
             onClicked: Options.autoShutdown = checked
             Layout.columnSpan: 2
             Layout.alignment: Qt.AlignRight
-            Layout.preferredWidth: 160
         }
 
         Text {

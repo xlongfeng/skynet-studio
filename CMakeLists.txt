@@ -28,5 +28,15 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Core Test Quick SerialPort REQUIRED)
 
+if (CMAKE_CROSSCOMPILING)
+    set(IMAGES_PATH /root/images)
+else ()
+    set(IMAGES_PATH ${PROJECT_SOURCE_DIR}/images)
+endif ()
+
+install(DIRECTORY images DESTINATION root)
+
+add_definitions(-DIMAGES_PATH="${IMAGES_PATH}")
+
 add_subdirectory(gui)
 add_subdirectory(src)
