@@ -49,7 +49,7 @@ Watertower::Watertower(int index, QObject *parent) :
     m_bucketHeight = settings->value("bucket-height", 200).toInt();
     m_bucketQuantity = settings->value("bucket-quantity", 1).toInt();
     m_sensorType = settings->value("sensor-type", Options::WaterlevelSensor).value<Options::SensorType>();
-    m_sensorQuantity = settings->value("sensor-quantity", 1).toInt();
+    m_sensorQuantity = settings->value("sensor-quantity", 4).toInt();
 
     linker = HalfDuplexLinker::instance();
     connect(linker, SIGNAL(response(int,QString,quint16)), this, SLOT(response(int,QString,quint16)));
