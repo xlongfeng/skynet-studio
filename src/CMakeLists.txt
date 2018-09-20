@@ -35,19 +35,16 @@ if (UNIX)
     set(STUDIO_SRC ${STUDIO_SRC} os_linux.c)
 endif ()
 
-if (CMAKE_CROSSCOMPILING)
-    set(IMAGES_PATH images)
-else ()
-    set(IMAGES_PATH ${PROJECT_SOURCE_DIR}/images)
-endif ()
-
-add_definitions(-DIMAGES_PATH="${IMAGES_PATH}")
-
 add_library(libstudio STATIC ${STUDIO_SRC})
 target_link_libraries(libstudio Qt5::Core Qt5::Quick Qt5::SerialPort)
 
 add_executable(skynet-studio main.cpp)
 target_link_libraries(skynet-studio libstudio gui)
+install(TARGETS skynet-studio DESTINATION root)
+install(FILES S80skynet DESTINATION etc/init.d PERMISSIONS
+    OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    GROUP_READ GROUP_EXECUTE
+    WORLD_READ WORLD_EXECUTE)
 
 add_executable(skynet-sensor main-sensor.cpp sensor.cpp)
 target_link_libraries(skynet-sensor libstudio gui)
@@ -55,3 +52,4 @@ target_link_libraries(skynet-sensor libstudio gui)
 add_executable(unittest unittest.cpp)
 add_test(unittest unittest)
 target_link_libraries(unittest libstudio Qt5::Test)
+install(TARGETS unittest DESTINATION root)
