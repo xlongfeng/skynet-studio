@@ -92,16 +92,6 @@ Page {
         }
         onAccepted: Options.setHardwareClock(year.value, month.value, day.value,
                                              hour.value, minute.value, second.value)
-
-        Component.onCompleted: {
-            var date = new Date()
-            year.value = date.getFullYear()
-            month.value = date.getMonth() + 1
-            day.value = date.getDate()
-            hour.value = date.getHours()
-            minute.value = date.getMinutes()
-            second.value = date.getSeconds()
-        }
     }
 
     Dialog {
@@ -189,6 +179,13 @@ Page {
         Button {
             text: qsTr("Date and Time")
             onPressed: {
+                var date = new Date()
+                year.value = date.getFullYear()
+                month.value = date.getMonth() + 1
+                day.value = date.getDate()
+                hour.value = date.getHours()
+                minute.value = date.getMinutes()
+                second.value = date.getSeconds()
                 dateTimeDialog.open()
             }
             Layout.columnSpan: 2
