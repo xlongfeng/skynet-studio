@@ -24,6 +24,8 @@
 #include "settings.h"
 #include "options.h"
 #include "daemon.h"
+#include "halfduplexlinker.h"
+#include "testdatalinker.h"
 
 class Unittest: public QObject
 {
@@ -126,6 +128,73 @@ private slots:
         QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(14, 0))) == true);
         QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(22, 0))) == false);
         QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(23, 0))) == false);
+    }
+
+    void halfDuplexLinkerTest1()
+    {
+        HalfDuplexLinker *linker = HalfDuplexLinker::instance();
+        TestDataLinker *dataLinker = new TestDataLinker();
+        linker->setDataLinker(dataLinker);
+
+        QSignalSpy readyToSendSpy(linker, SIGNAL(readyToSend()));
+        QSignalSpy requestNextSpy(linker, SIGNAL(requestNext()));
+        QSignalSpy queueEmpty(linker, SIGNAL(queueEmpty()));
+        QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
+        QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
+
+        QTest::qWait(100);
+
+        QCOMPARE(readyToSendSpy.count(), 0);
+        QCOMPARE(requestNextSpy.count(), 0);
+        QCOMPARE(queueEmpty.count(), 0);
+        QCOMPARE(responseSpy.count(), 0);
+        QCOMPARE(timeoutSpy.count(), 0);
+    }
+
+    void halfDuplexLinkerTest2()
+    {
+        HalfDuplexLinker *linker = HalfDuplexLinker::instance();
+        TestDataLinker *dataLinker = new TestDataLinker();
+        linker->setDataLinker(dataLinker);
+
+        QSignalSpy readyToSendSpy(linker, SIGNAL(readyToSend()));
+        QSignalSpy requestNextSpy(linker, SIGNAL(requestNext()));
+        QSignalSpy queueEmpty(linker, SIGNAL(queueEmpty()));
+        QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
+        QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
+
+        linker->request(0x10, "Query", 0);
+        QVERIFY(timeoutSpy.wait(250));
+
+        QCOMPARE(readyToSendSpy.count(), 1);
+        QCOMPARE(requestNextSpy.count(), 0);
+        QCOMPARE(queueEmpty.count(), 1);
+        QCOMPARE(responseSpy.count(), 0);
+        QCOMPARE(timeoutSpy.count(), 1);
+    }
+
+    void halfDuplexLinkerTest3()
+    {
+        HalfDuplexLinker *linker = HalfDuplexLinker::instance();
+        TestDataLinker *dataLinker = new TestDataLinker();
+        linker->setDataLinker(dataLinker);
+
+        QSignalSpy readyToSendSpy(linker, SIGNAL(readyToSend()));
+        QSignalSpy requestNextSpy(linker, SIGNAL(requestNext()));
+        QSignalSpy queueEmpty(linker, SIGNAL(queueEmpty()));
+        QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
+        QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
+
+        linker->request(0x10, "Query", 0);
+        linker->request(0x10, "Query", 0);
+        QVERIFY(timeoutSpy.wait(250));
+        QVERIFY(timeoutSpy.wait(250));
+
+        QCOMPARE(readyToSendSpy.count(), 2);
+        QCOMPARE(requestNextSpy.count(), 0);
+        QCOMPARE(queueEmpty.count(), 1);
+        QCOMPARE(responseSpy.count(), 0);
+        QCOMPARE(timeoutSpy.count(), 2);
     }
 };
 

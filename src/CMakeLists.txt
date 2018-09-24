@@ -28,6 +28,8 @@ set(STUDIO_SRC
     daemon.cpp
     watertower.cpp
     watertowermodel.cpp
+    abstractdatalinker.cpp
+    serialdatalinker.cpp
     halfduplexlinker.cpp
     )
 
@@ -49,7 +51,7 @@ install(FILES S80skynet DESTINATION etc/init.d PERMISSIONS
 add_executable(skynet-sensor main-sensor.cpp sensor.cpp)
 target_link_libraries(skynet-sensor libstudio gui)
 
-add_executable(unittest unittest.cpp)
+add_executable(unittest unittest.cpp testdatalinker.cpp)
 add_test(unittest unittest)
 target_link_libraries(unittest libstudio Qt5::Test)
 install(TARGETS unittest DESTINATION root)

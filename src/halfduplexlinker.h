@@ -26,9 +26,8 @@
 
 #include "utility.h"
 
-class Options;
 class QTimer;
-class QSerialPort;
+class AbstractDataLinker;
 
 class HalfDuplexLinker : public QObject
 {
@@ -36,15 +35,15 @@ class HalfDuplexLinker : public QObject
 
 public:
     static HalfDuplexLinker *instance();
+    void setDataLinker(AbstractDataLinker *newLinker);
     void request(int id, const QString &cmd, quint16 arg);
 
 signals:
+    void readyToSend();
+    void requestNext();
+    void queueEmpty();
     void response(int id, const QString &cmd , quint16 arg);
     void timeout(int id, const QString &cmd , quint16 arg);
-
-    void readyToSend();
-    void responseReceived();
-    void queueEmpty();
 
 private:
     struct Datagram {
@@ -54,12 +53,10 @@ private:
     };
 
 private slots:
-    void onPortSettingsChanged();
-    void onReadyRead();
-
     void onRequestStateEntered();
     void onRequestStateExited();
     void onRequestTimeout();
+    void onDataArrived(const QByteArray &bytes);
 
 private:
     explicit HalfDuplexLinker(QObject *parent = nullptr);
@@ -67,10 +64,9 @@ private:
 
 private:
     static HalfDuplexLinker *self;
-    Options *options;
+    AbstractDataLinker *linker = nullptr;
     CmdBuf cmdBuf;
     QQueue<Datagram> datagramQueue;
-    QSerialPort *port;
     QTimer *responseTimeoutTimer;
     Datagram datagramRequested;
     QStateMachine machine;

@@ -18,11 +18,10 @@
  */
 
 #include <QTimer>
-#include <QSerialPort>
 #include <QDebug>
 
-#include "options.h"
 #include "halfduplexlinker.h"
+#include "serialdatalinker.h"
 
 namespace {
 const int ResponseTimeout = 200;    /* millisecond */
@@ -34,20 +33,7 @@ HalfDuplexLinker *HalfDuplexLinker::self = nullptr;
 HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     QObject(parent)
 {
-    options = Options::instance();
-
     cmdBufInit(&cmdBuf);
-
-    port = new QSerialPort(options->portName(), this);
-    port->setBaudRate(options->baudRate());
-    port->setDataBits(QSerialPort::Data8);
-    port->setFlowControl(QSerialPort::NoFlowControl);
-    port->setParity(QSerialPort::NoParity);
-    port->setStopBits(QSerialPort::OneStop);
-    port->open(QIODevice::ReadWrite);
-    connect(port, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-    connect(options, SIGNAL(portNameChanged()), this, SLOT(onPortSettingsChanged()));
-    connect(options, SIGNAL(baudRateChanged()), this, SLOT(onPortSettingsChanged()));
 
     QState *idleState = new QState();
     machine.addState(idleState);
@@ -59,7 +45,7 @@ HalfDuplexLinker::HalfDuplexLinker(QObject *parent) :
     responseTimeoutTimer->setSingleShot(true);
     connect(responseTimeoutTimer, SIGNAL(timeout()), this, SLOT(onRequestTimeout()));
     requestState->addTransition(responseTimeoutTimer, SIGNAL(timeout()), requestState);
-    requestState->addTransition(this, SIGNAL(responseReceived()), requestState);
+    requestState->addTransition(this, SIGNAL(requestNext()), requestState);
     connect(requestState, SIGNAL(entered()), this, SLOT(onRequestStateEntered()));
     connect(requestState, SIGNAL(exited()), this, SLOT(onRequestStateExited()));
     machine.addState(requestState);
@@ -72,55 +58,25 @@ HalfDuplexLinker *HalfDuplexLinker::instance()
 {
     if (self == nullptr) {
         self = new HalfDuplexLinker();
+        self->setDataLinker(new SerialDataLinker());
     }
 
     return self;
+}
+
+void HalfDuplexLinker::setDataLinker(AbstractDataLinker *newLinker)
+{
+    if (this->linker != nullptr)
+        delete this->linker;
+    this->linker = newLinker;
+    newLinker->setParent(this);
+    connect(this->linker, SIGNAL(dataArrived(QByteArray)), this, SLOT(onDataArrived(QByteArray)));
 }
 
 void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg)
 {
     datagramQueue.enqueue({id, cmd, arg});
     emit readyToSend();
-}
-
-void HalfDuplexLinker::onPortSettingsChanged()
-{
-    port->close();
-    port->setPortName(options->portName());
-    port->setBaudRate(options->baudRate());
-    port->open(QIODevice::ReadWrite);
-}
-
-void HalfDuplexLinker::onReadyRead()
-{
-    char action[ActionLenMax];
-    quint8 addr;
-    quint16 arg;
-    char cbyte;
-    pCmdBuf pCmd = &cmdBuf;
-
-    int bytes = port->bytesAvailable();
-    if (bytes > 0) {
-        QByteArray buf = port->readAll();
-        for (int i = 0; i < buf.size(); i++) {
-            cbyte = buf[i];
-            if (cbyte == '\r' || cbyte == '\n') {
-                cmdBufPushEnd(pCmd);
-                if (cmdBufSize(pCmd) > 0) {
-                    cmdBufGetAddr(pCmd, &addr);
-                    cmdBufGetAction(pCmd, action, ActionLenMax);
-                    cmdBufGetArg(pCmd, &arg);
-                    if (cmdBufValidation(pCmd) == CMD_BUF_OK) {
-                        emit response(addr, action, arg);
-                        emit responseReceived();
-                    }
-                }
-                cmdBufReset(pCmd);
-            }  else {
-                cmdBufPushByte(pCmd, cbyte);
-            }
-        }
-    }
 }
 
 void HalfDuplexLinker::onRequestStateEntered()
@@ -130,7 +86,7 @@ void HalfDuplexLinker::onRequestStateEntered()
         datagramRequested = request;
         CmdBuf cmdBuf;
         cmdBufBuild(&cmdBuf, request.id, request.cmd.toLatin1().data(), request.arg);
-        port->write(cmdBuf.buf);
+        linker->send(cmdBuf.buf);
         responseTimeoutTimer->start(ResponseTimeout);
     } else {
         emit queueEmpty();
@@ -145,4 +101,31 @@ void HalfDuplexLinker::onRequestStateExited()
 void HalfDuplexLinker::onRequestTimeout()
 {
     emit timeout(datagramRequested.id, datagramRequested.cmd, datagramRequested.arg);
+}
+
+void HalfDuplexLinker::onDataArrived(const QByteArray &bytes)
+{
+    pCmdBuf pCmd = &cmdBuf;
+
+    for (int i = 0; i < bytes.size(); i++) {
+        char cbyte = bytes[i];
+        if (cbyte == '\r' || cbyte == '\n') {
+            cmdBufPushEnd(pCmd);
+            if (cmdBufSize(pCmd) > 0) {
+                char action[ActionLenMax];
+                quint8 addr;
+                quint16 arg;
+                cmdBufGetAddr(pCmd, &addr);
+                cmdBufGetAction(pCmd, action, ActionLenMax);
+                cmdBufGetArg(pCmd, &arg);
+                if (cmdBufValidation(pCmd) == CMD_BUF_OK) {
+                    emit response(addr, action, arg);
+                }
+                emit requestNext();
+            }
+            cmdBufReset(pCmd);
+        }  else {
+            cmdBufPushByte(pCmd, cbyte);
+        }
+    }
 }
