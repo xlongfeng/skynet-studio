@@ -198,3 +198,10 @@ void cmdBufBuild(pCmdBuf pbuf, uint8_t addr, const char *action, uint16_t arg)
     n = sprintf_small(pbuf->buf, "@%x,%s,%x", addr, action, arg);
     n += sprintf_small(pbuf->buf + n, ",%x\n", cmdBufCalcCrc(pbuf, n));
 }
+
+void cmdBufBuildInvalidCrc(pCmdBuf pbuf, uint8_t addr, const char *action, uint16_t arg)
+{
+    uint8_t n;
+    n = sprintf_small(pbuf->buf, "@%x,%s,%x", addr, action, arg);
+    n += sprintf_small(pbuf->buf + n, ",%x\n", cmdBufCalcCrc(pbuf, n) + 1);
+}

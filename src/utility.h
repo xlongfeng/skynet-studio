@@ -51,6 +51,7 @@ void cmdBufGetArg(pCmdBuf pbuf, uint16_t *pArg);
 void cmdBufGetCrc(pCmdBuf pbuf, uint8_t *pCrc);
 uint8_t cmdBufValidation(pCmdBuf pbuf);
 void cmdBufBuild(pCmdBuf pbuf, uint8_t addr, const char *action, uint16_t arg);
+void cmdBufBuildInvalidCrc(pCmdBuf pbuf, uint8_t addr, const char *action, uint16_t arg);
 
 #ifdef	__cplusplus
 }

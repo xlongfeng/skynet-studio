@@ -130,7 +130,7 @@ private slots:
         QVERIFY(daemon->isPowerSaving(QDateTime(QDate(2000, 1, 1), QTime(23, 0))) == false);
     }
 
-    void halfDuplexLinkerTest1()
+    void halfDuplexLinkerTest()
     {
         HalfDuplexLinker *linker = HalfDuplexLinker::instance();
         TestDataLinker *dataLinker = new TestDataLinker();
@@ -142,6 +142,9 @@ private slots:
         QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
         QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
 
+        /*
+         * init
+         */
         QTest::qWait(100);
 
         QCOMPARE(readyToSendSpy.count(), 0);
@@ -149,20 +152,10 @@ private slots:
         QCOMPARE(queueEmpty.count(), 0);
         QCOMPARE(responseSpy.count(), 0);
         QCOMPARE(timeoutSpy.count(), 0);
-    }
 
-    void halfDuplexLinkerTest2()
-    {
-        HalfDuplexLinker *linker = HalfDuplexLinker::instance();
-        TestDataLinker *dataLinker = new TestDataLinker();
-        linker->setDataLinker(dataLinker);
-
-        QSignalSpy readyToSendSpy(linker, SIGNAL(readyToSend()));
-        QSignalSpy requestNextSpy(linker, SIGNAL(requestNext()));
-        QSignalSpy queueEmpty(linker, SIGNAL(queueEmpty()));
-        QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
-        QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
-
+        /*
+         * one request
+         */
         linker->request(0x10, "Query", 0);
         QVERIFY(timeoutSpy.wait(250));
 
@@ -171,29 +164,94 @@ private slots:
         QCOMPARE(queueEmpty.count(), 1);
         QCOMPARE(responseSpy.count(), 0);
         QCOMPARE(timeoutSpy.count(), 1);
-    }
 
-    void halfDuplexLinkerTest3()
-    {
-        HalfDuplexLinker *linker = HalfDuplexLinker::instance();
-        TestDataLinker *dataLinker = new TestDataLinker();
-        linker->setDataLinker(dataLinker);
-
-        QSignalSpy readyToSendSpy(linker, SIGNAL(readyToSend()));
-        QSignalSpy requestNextSpy(linker, SIGNAL(requestNext()));
-        QSignalSpy queueEmpty(linker, SIGNAL(queueEmpty()));
-        QSignalSpy responseSpy(linker, SIGNAL(response(int,QString,quint16)));
-        QSignalSpy timeoutSpy(linker, SIGNAL(timeout(int,QString,quint16)));
+        /*
+         * two request
+         */
+        readyToSendSpy.clear();
+        requestNextSpy.clear();
+        queueEmpty.clear();
+        responseSpy.clear();
+        timeoutSpy.clear();
 
         linker->request(0x10, "Query", 0);
         linker->request(0x10, "Query", 0);
-        QVERIFY(timeoutSpy.wait(250));
-        QVERIFY(timeoutSpy.wait(250));
+        QTest::qWait(450);
 
         QCOMPARE(readyToSendSpy.count(), 2);
         QCOMPARE(requestNextSpy.count(), 0);
         QCOMPARE(queueEmpty.count(), 1);
         QCOMPARE(responseSpy.count(), 0);
+        QCOMPARE(timeoutSpy.count(), 2);
+
+        /*
+         * one request, one response
+         */
+        readyToSendSpy.clear();
+        requestNextSpy.clear();
+        queueEmpty.clear();
+        responseSpy.clear();
+        timeoutSpy.clear();
+
+        dataLinker->appendResponse(0x10, "Query", 33);
+        linker->request(0x10, "Query", 0);
+
+        QTest::qWait(100);
+
+        QCOMPARE(readyToSendSpy.count(), 1);
+        QCOMPARE(requestNextSpy.count(), 1);
+        QCOMPARE(queueEmpty.count(), 1);
+        QCOMPARE(responseSpy.count(), 1);
+        QCOMPARE(timeoutSpy.count(), 0);
+
+        /*
+         * one request, one invalid response
+         */
+        readyToSendSpy.clear();
+        requestNextSpy.clear();
+        queueEmpty.clear();
+        responseSpy.clear();
+        timeoutSpy.clear();
+
+        dataLinker->appendResponse(0x10, "Query", 33, true);
+        linker->request(0x10, "Query", 0);
+
+        QTest::qWait(100);
+
+        QCOMPARE(readyToSendSpy.count(), 1);
+        QCOMPARE(requestNextSpy.count(), 1);
+        QCOMPARE(queueEmpty.count(), 1);
+        QCOMPARE(responseSpy.count(), 0);
+        QCOMPARE(timeoutSpy.count(), 0);
+
+        /*
+         * one request, no response
+         * one request, one response
+         * one request, one invalid response
+         * one request, no response
+         */
+        readyToSendSpy.clear();
+        requestNextSpy.clear();
+        queueEmpty.clear();
+        responseSpy.clear();
+        timeoutSpy.clear();
+
+        linker->request(0x10, "Query", 0);
+
+        dataLinker->appendResponse(0x10, "Query", 33);
+        linker->request(0x10, "Query", 0);
+
+        dataLinker->appendResponse(0x10, "Query", 33, true);
+        linker->request(0x10, "Query", 0);
+
+        linker->request(0x10, "Query", 0);
+
+        QTest::qWait(500);
+
+        QCOMPARE(readyToSendSpy.count(), 4);
+        QCOMPARE(requestNextSpy.count(), 2);
+        QCOMPARE(queueEmpty.count(), 1);
+        QCOMPARE(responseSpy.count(), 1);
         QCOMPARE(timeoutSpy.count(), 2);
     }
 };

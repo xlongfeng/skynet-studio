@@ -20,6 +20,7 @@
 #include <QDebug>
 
 #include "testdatalinker.h"
+#include "utility.h"
 
 TestDataLinker::TestDataLinker(QObject *parent) :
     AbstractDataLinker(parent)
@@ -27,7 +28,28 @@ TestDataLinker::TestDataLinker(QObject *parent) :
 
 }
 
+void TestDataLinker::appendResponse(int id, const QString &cmd, quint16 arg, bool invalid)
+{
+    CmdBuf cmdBuf;
+    if (invalid)
+        cmdBufBuildInvalidCrc(&cmdBuf, id, cmd.toLatin1().data(), arg);
+    else
+        cmdBufBuild(&cmdBuf, id, cmd.toLatin1().data(), arg);
+    datagramQueue.enqueue(cmdBuf.buf);
+}
+
+void TestDataLinker::appendResponse(const QByteArray &data)
+{
+    datagramQueue.enqueue(data);
+
+}
+
 void TestDataLinker::send(const QByteArray &bytes)
 {
-    qDebug() << bytes;
+    qDebug() << "DataLinker Send:" << bytes;
+
+    if (!datagramQueue.isEmpty()) {
+        QByteArray data = datagramQueue.dequeue();
+        emit dataArrived(data);
+    }
 }

@@ -20,6 +20,8 @@
 #ifndef TESTDATALINKER_H
 #define TESTDATALINKER_H
 
+#include <QQueue>
+
 #include "abstractdatalinker.h"
 
 class TestDataLinker : public AbstractDataLinker
@@ -28,12 +30,14 @@ class TestDataLinker : public AbstractDataLinker
 
 public:
     explicit TestDataLinker(QObject *parent = nullptr);
+    void appendResponse(int id, const QString &cmd, quint16 arg, bool invalid = false);
+    void appendResponse(const QByteArray &data);
 
 public slots:
     void send(const QByteArray &bytes) override;
 
 private:
-
+    QQueue<QByteArray> datagramQueue;
 };
 
 #endif // TESTDATALINKER_H
