@@ -96,10 +96,10 @@ Page {
                                 }
 
                                 SpinBox {
-                                    from: 100
-                                    to: 400
+                                    from: 30
+                                    to: 300
                                     value: radius
-                                    width: 160
+                                    width: 150
                                     onValueModified: option.setData(option.index(indexRow, 0), value, WatertowerModel.RadiusRole)
                                 }
 
