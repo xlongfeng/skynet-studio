@@ -39,6 +39,7 @@ class Options : public QObject
     Q_PROPERTY(QDateTime powerSavingTo MEMBER m_powerSavingTo READ powerSavingTo WRITE setPowerSavingTo NOTIFY powerSavingToChanged)
     Q_PROPERTY(qint32 idleTime MEMBER m_idleTime READ idleTime WRITE setIdleTime NOTIFY idleTimeChanged)
 
+    Q_PROPERTY(bool sniffer MEMBER m_sniffer READ sniffer WRITE setSniffer NOTIFY snifferChanged)
     Q_PROPERTY(bool debug MEMBER m_debug READ debug WRITE setDebug NOTIFY debugChanged)
 
 public:
@@ -118,6 +119,12 @@ public:
     }
     void setIdleTime(qint32 value);
 
+    bool sniffer() const
+    {
+        return m_sniffer;
+    }
+    void setSniffer(bool on);
+
     bool debug() const
     {
         return m_debug;
@@ -134,6 +141,7 @@ signals:
     void powerSavingFromChanged();
     void powerSavingToChanged();
     void idleTimeChanged();
+    void snifferChanged();
     void debugChanged();
 
 public slots:
@@ -157,6 +165,7 @@ private:
     QDateTime m_powerSavingTo;
     qint32 m_idleTime;
 
+    bool m_sniffer;
     bool m_debug;
 };
 

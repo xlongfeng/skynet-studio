@@ -43,6 +43,7 @@ Options::Options(QObject *parent) : QObject(parent),
     m_powerSavingFrom = settings->value("power-saving-from", "2000-01-01 23:00").toDateTime();
     m_powerSavingTo = settings->value("power-saving-to", "2000-01-01 06:00").toDateTime();
     m_idleTime = settings->value("idle-time", 15).toInt();
+    m_sniffer = settings->value("sniffer", false).toBool();
     m_debug = settings->value("debug", false).toBool();
 }
 
@@ -206,6 +207,15 @@ void Options::setIdleTime(qint32 value)
         m_idleTime = value;
         settings->setValue("idle-time", value);
         emit idleTimeChanged();
+    }
+}
+
+void Options::setSniffer(bool on)
+{
+    if (m_sniffer != on) {
+        m_sniffer = on;
+        settings->setValue("sniffer", on);
+        emit snifferChanged();
     }
 }
 

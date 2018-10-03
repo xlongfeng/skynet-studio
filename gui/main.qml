@@ -20,6 +20,8 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 
+import Backend 1.0
+
 ApplicationWindow {
     id: window
     visible: true
@@ -44,6 +46,7 @@ ApplicationWindow {
         }
 
         Label {
+            color: Options.sniffer ? "blue" : "black"
             text: stackView.currentItem.title
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             anchors.centerIn: parent

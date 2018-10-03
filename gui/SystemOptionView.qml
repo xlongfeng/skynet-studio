@@ -321,6 +321,14 @@ Page {
         }
 
         CheckBox {
+            text: qsTr("Sniffer")
+            checked: Options.sniffer
+            onClicked: Options.sniffer = checked
+            Layout.columnSpan: 2
+            Layout.alignment: Qt.AlignRight
+        }
+
+        CheckBox {
             text: qsTr("Debug")
             checked: Options.debug
             onClicked: Options.debug = checked

@@ -28,6 +28,7 @@
 namespace {
 const int IdentityBase = 0x10;
 const int WatertowerQuantity = 6;
+const quint16 InvalidArg = 0xffff;
 const int AcousticVelocity = 340;
 }
 
@@ -151,7 +152,7 @@ void Watertower::setSensorQuantity(int quantity)
 
 void Watertower::query()
 {
-    linker->request(m_identity, "Query", 0);
+    linker->request(m_identity, "Query", InvalidArg);
     ++m_requestTimes;
     emit requestTimesChanged();
 }
@@ -181,6 +182,10 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
     }
 
     if (cmd == "Query") {
+        if (arg == InvalidArg) {
+            return;
+        }
+
         int waterLevelCM;
 
         switch (m_sensorType) {
@@ -200,7 +205,7 @@ void Watertower::response(int id, const QString &cmd , quint16 arg)
         emit tunnageChanged();
         m_percent = waterLevelCM * 100 / m_bucketHeight;
         emit percentChanged();
-        // qDebug() << "Identity" << m_identity << waterLevelCM << m_tunnage << m_percent;
+        // qDebug() << "Identity" << m_identity << arg << waterLevelCM << m_tunnage << m_percent;
     }
 }
 

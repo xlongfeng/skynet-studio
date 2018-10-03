@@ -22,6 +22,7 @@
 
 #include "halfduplexlinker.h"
 #include "serialdatalinker.h"
+#include "options.h"
 
 namespace {
 const int ResponseTimeout = 200;    /* millisecond */
@@ -86,8 +87,12 @@ void HalfDuplexLinker::onRequestStateEntered()
         datagramRequested = request;
         CmdBuf cmdBuf;
         cmdBufBuild(&cmdBuf, request.id, request.cmd.toLatin1().data(), request.arg);
-        linker->send(cmdBuf.buf);
-        responseTimeoutTimer->start(ResponseTimeout);
+        if (Options::instance()->sniffer()) {
+            responseTimeoutTimer->start(ResponseTimeout * 6);
+        } else {
+            linker->send(cmdBuf.buf);
+            responseTimeoutTimer->start(ResponseTimeout);
+        }
     } else {
         emit queueEmpty();
     }
