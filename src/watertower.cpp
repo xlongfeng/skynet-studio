@@ -152,7 +152,7 @@ void Watertower::setSensorQuantity(int quantity)
 
 void Watertower::query()
 {
-    linker->request(m_identity, "Query", InvalidArg);
+    linker->request(m_identity, "Query", InvalidArg, Options::instance()->sniffer());
     ++m_requestTimes;
     emit requestTimesChanged();
 }

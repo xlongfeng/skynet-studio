@@ -22,7 +22,6 @@
 
 #include "halfduplexlinker.h"
 #include "serialdatalinker.h"
-#include "options.h"
 
 namespace {
 const int ResponseTimeout = 200;    /* millisecond */
@@ -74,9 +73,9 @@ void HalfDuplexLinker::setDataLinker(AbstractDataLinker *newLinker)
     connect(this->linker, SIGNAL(dataArrived(QByteArray)), this, SLOT(onDataArrived(QByteArray)));
 }
 
-void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg)
+void HalfDuplexLinker::request(int id, const QString &cmd, quint16 arg, bool sniffer)
 {
-    datagramQueue.enqueue({id, cmd, arg});
+    datagramQueue.enqueue({id, cmd, arg, sniffer});
     emit readyToSend();
 }
 
@@ -87,7 +86,7 @@ void HalfDuplexLinker::onRequestStateEntered()
         datagramRequested = request;
         CmdBuf cmdBuf;
         cmdBufBuild(&cmdBuf, request.id, request.cmd.toLatin1().data(), request.arg);
-        if (Options::instance()->sniffer()) {
+        if (request.sniffer) {
             responseTimeoutTimer->start(ResponseTimeout * 6);
         } else {
             linker->send(cmdBuf.buf);

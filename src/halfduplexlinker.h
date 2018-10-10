@@ -36,7 +36,7 @@ class HalfDuplexLinker : public QObject
 public:
     static HalfDuplexLinker *instance();
     void setDataLinker(AbstractDataLinker *newLinker);
-    void request(int id, const QString &cmd, quint16 arg);
+    void request(int id, const QString &cmd, quint16 arg, bool sniffer = false);
 
 signals:
     void readyToSend();
@@ -50,6 +50,7 @@ private:
         int id;
         QString cmd;
         quint16 arg;
+        bool sniffer;
     };
 
 private slots:

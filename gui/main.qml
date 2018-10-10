@@ -54,6 +54,7 @@ ApplicationWindow {
 
         Text {
             id: date
+            color: Options.sniffer ? "blue" : "black"
             font.pixelSize: Qt.application.font.pixelSize * 1.2
             anchors.right: parent.right
             anchors.rightMargin: 8
